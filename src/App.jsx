@@ -8,16 +8,15 @@ import CreateWaitlist from "./pages/CreateWaitlist";
 import WaitlistPage from "./pages/WaitlistPage";
 import Welcome from "./pages/Welcome";
 import WaitlistDetail from "./pages/WaitlistDetail";
+import Pricing from "./pages/Pricing";
+import Home from "./pages/Home";
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route
-            path="/"
-            element={<div style={{ padding: 40 }}>Home — coming soon</div>}
-          />
+          <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route
@@ -46,6 +45,7 @@ function App() {
           />
           <Route path="/w/:slug" element={<WaitlistPage />} />
           <Route path="/w/:slug/welcome" element={<Welcome />} />
+          <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
           
         </Routes>
       </BrowserRouter>
