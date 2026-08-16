@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useWaitlist } from "../hooks/useWaitlist";
 import SignupForm from "../components/SignupForm";
 
+
 export default function WaitlistPage() {
   const { slug } = useParams();
   const { waitlist, loading, error } = useWaitlist(slug);
