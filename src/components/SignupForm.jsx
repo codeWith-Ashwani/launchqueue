@@ -1,16 +1,11 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import api from "../api/axios";
 
-export default function SignupForm({
-  slug,
-  accentColor = "#111",
-  ctaText = "Join waitlist",
-}) {
+export default function SignupForm({ slug, accentColor = "#111", ctaText = "Join waitlist", onSuccess }) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const ref = searchParams.get("ref");
 
@@ -20,9 +15,7 @@ export default function SignupForm({
     setLoading(true);
     try {
       const res = await api.post(`/w/${slug}/signup`, { email, ref });
-      navigate(
-        `/w/${slug}/welcome?refCode=${res.data.refCode}&position=${res.data.position}`,
-      );
+      onSuccess(res.data); // instead of navigate()
     } catch (err) {
       setError(err.response?.data?.error || "Something went wrong");
     } finally {
@@ -38,58 +31,16 @@ export default function SignupForm({
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
-        style={{
-          flex: 1,
-          padding: "10px 12px",
-          border: "1px solid #ddd",
-          borderRadius: 8,
-          fontSize: 14,
-        }}
+        style={{ flex: 1, padding: "10px 12px", border: "1px solid #ddd", borderRadius: 8, fontSize: 14 }}
       />
       <button
         type="submit"
         disabled={loading}
-        style={{
-          padding: "10px 20px",
-          background: "#111",
-          color: "#fff",
-          border: "none",
-          borderRadius: 8,
-          cursor: "pointer",
-          fontSize: 14,
-          whiteSpace: "nowrap",
-        }}
-      >
-        {loading ? "Joining..." : "Join waitlist"}
-      </button>
-      <button
-        type="submit"
-        disabled={loading}
-        style={{
-          padding: "10px 20px",
-          background: accentColor,
-          color: "#fff",
-          border: "none",
-          borderRadius: 8,
-          cursor: "pointer",
-          fontSize: 14,
-          whiteSpace: "nowrap",
-        }}
+        style={{ padding: "10px 20px", background: accentColor, color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 14, whiteSpace: "nowrap" }}
       >
         {loading ? "Joining..." : ctaText}
       </button>
-      {error && (
-        <p
-          style={{
-            color: "red",
-            fontSize: 13,
-            position: "absolute",
-            marginTop: 44,
-          }}
-        >
-          {error}
-        </p>
-      )}
+      {error && <p style={{ color: "red", fontSize: 13, position: "absolute", marginTop: 44 }}>{error}</p>}
     </form>
   );
 }
