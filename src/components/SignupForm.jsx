@@ -2,7 +2,11 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api/axios";
 
-export default function SignupForm({ slug }) {
+export default function SignupForm({
+  slug,
+  accentColor = "#111",
+  ctaText = "Join waitlist",
+}) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,7 +20,9 @@ export default function SignupForm({ slug }) {
     setLoading(true);
     try {
       const res = await api.post(`/w/${slug}/signup`, { email, ref });
-      navigate(`/w/${slug}/welcome?refCode=${res.data.refCode}&position=${res.data.position}`);
+      navigate(
+        `/w/${slug}/welcome?refCode=${res.data.refCode}&position=${res.data.position}`,
+      );
     } catch (err) {
       setError(err.response?.data?.error || "Something went wrong");
     } finally {
@@ -56,7 +62,34 @@ export default function SignupForm({ slug }) {
       >
         {loading ? "Joining..." : "Join waitlist"}
       </button>
-      {error && <p style={{ color: "red", fontSize: 13, position: "absolute", marginTop: 44 }}>{error}</p>}
+      <button
+        type="submit"
+        disabled={loading}
+        style={{
+          padding: "10px 20px",
+          background: accentColor,
+          color: "#fff",
+          border: "none",
+          borderRadius: 8,
+          cursor: "pointer",
+          fontSize: 14,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {loading ? "Joining..." : ctaText}
+      </button>
+      {error && (
+        <p
+          style={{
+            color: "red",
+            fontSize: 13,
+            position: "absolute",
+            marginTop: 44,
+          }}
+        >
+          {error}
+        </p>
+      )}
     </form>
   );
 }

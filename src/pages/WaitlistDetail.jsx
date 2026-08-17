@@ -81,6 +81,12 @@ export default function WaitlistDetail() {
       >
         Export signups as CSV
       </button>
+      <Link
+        to={`/dashboard/${id}/settings`}
+        style={{ fontSize: 13, color: "#666", marginLeft: 16 }}
+      >
+        Edit landing page
+      </Link>
     </div>
   );
 }

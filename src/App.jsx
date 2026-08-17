@@ -10,6 +10,7 @@ import Welcome from "./pages/Welcome";
 import WaitlistDetail from "./pages/WaitlistDetail";
 import Pricing from "./pages/Pricing";
 import Home from "./pages/Home";
+import WaitlistSettings from "./pages/WaitlistSettings";
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
           <Route path="/w/:slug" element={<WaitlistPage />} />
           <Route path="/w/:slug/welcome" element={<Welcome />} />
           <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
+          <Route path="/dashboard/:id/settings" element={<ProtectedRoute><WaitlistSettings /></ProtectedRoute>} />
           
         </Routes>
       </BrowserRouter>
