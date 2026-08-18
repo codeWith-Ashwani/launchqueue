@@ -41,6 +41,9 @@ export function AuthProvider({ children }) {
 
   function logout() {
     localStorage.removeItem("token");
+    localStorage.removeItem("lq_user_signup_launchqueue");
+    localStorage.removeItem("lq_active_ref_code");
+    sessionStorage.removeItem("lq_active_ref_code");
     setFounder(null);
   }
 
