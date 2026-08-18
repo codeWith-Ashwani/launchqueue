@@ -1,2 +1,1043 @@
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', sans-serif; background: #fafafa; color: #111; }
+/* ==========================================================================
+   LaunchQueue - Minimal Grayscale SaaS Design System
+   Inspired by Vercel, Linear, Stripe, Raycast, and Notion.
+   ========================================================================== */
+
+:root {
+  /* Grayscale Color Palette */
+  --color-black: #000000;
+  --color-near-black: #0A0A0A;
+  --color-dark-gray: #171717;
+  --color-border-dark: #262626;
+  --color-medium-gray: #525252;
+  --color-light-gray: #A3A3A3;
+  --color-border-gray: #E5E5E5;
+  --color-bg-gray: #F7F7F7;
+  --color-bg-subtle: #FAFAFA;
+  --color-white: #FFFFFF;
+
+  /* Theme Semantic Variables (Light default, high-contrast monochrome) */
+  --bg-page: var(--color-white);
+  --bg-surface: var(--color-white);
+  --bg-surface-subtle: var(--color-bg-gray);
+  --bg-card: var(--color-white);
+  --bg-input: var(--color-white);
+  --border-color: var(--color-border-gray);
+  --border-subtle: #EFEFEF;
+
+  /* Text Colors */
+  --text-primary: var(--color-near-black);
+  --text-secondary: var(--color-medium-gray);
+  --text-muted: var(--color-light-gray);
+  --text-inverse: var(--color-white);
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+
+  /* Border Radii */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 9999px;
+
+  /* Shadows (Subtle, crisp) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08);
+
+  /* Layout Width */
+  --container-max: 1120px;
+}
+
+/* Reset & Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  letter-spacing: -0.011em;
+}
+
+/* Typography Hierarchy */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+button, input, textarea {
+  font-family: inherit;
+}
+
+/* Layout Container */
+.lq-container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.lq-container-sm {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Navbar */
+.lq-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.lq-navbar-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 64px;
+}
+
+.lq-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1.0625rem;
+  color: var(--color-black);
+  letter-spacing: -0.02em;
+}
+
+.lq-logo-mark {
+  width: 24px;
+  height: 24px;
+  background: var(--color-black);
+  color: var(--color-white);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.lq-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.lq-nav-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-medium-gray);
+  transition: color 0.15s ease;
+}
+
+.lq-nav-link:hover {
+  color: var(--color-black);
+}
+
+.lq-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Monochrome Button System */
+.lq-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  outline: none;
+  white-space: nowrap;
+}
+
+.lq-btn:active {
+  transform: translateY(1px);
+}
+
+.lq-btn-primary {
+  background: var(--color-black);
+  color: var(--color-white);
+  border: 1px solid var(--color-black);
+}
+
+.lq-btn-primary:hover {
+  background: var(--color-dark-gray);
+  border-color: var(--color-dark-gray);
+}
+
+.lq-btn-secondary {
+  background: var(--color-white);
+  color: var(--color-near-black);
+  border: 1px solid var(--color-border-gray);
+}
+
+.lq-btn-secondary:hover {
+  background: var(--color-bg-gray);
+  border-color: #D4D4D4;
+}
+
+.lq-btn-ghost {
+  background: transparent;
+  color: var(--color-medium-gray);
+  border: 1px solid transparent;
+}
+
+.lq-btn-ghost:hover {
+  color: var(--color-black);
+  background: var(--color-bg-gray);
+}
+
+.lq-btn-lg {
+  padding: 12px 24px;
+  font-size: 0.9375rem;
+  border-radius: var(--radius-md);
+}
+
+/* Subtle Badge */
+.lq-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--color-bg-gray);
+  color: var(--color-medium-gray);
+  border: 1px solid var(--color-border-gray);
+  margin-bottom: 24px;
+}
+
+.lq-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-black);
+}
+
+/* Hero Section */
+.lq-hero {
+  padding: 96px 0 64px;
+  text-align: center;
+}
+
+.lq-hero-title {
+  font-size: 3.75rem;
+  font-weight: 700;
+  color: var(--color-black);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  max-width: 800px;
+  margin: 0 auto 24px;
+}
+
+.lq-hero-subtitle {
+  font-size: 1.1875rem;
+  color: var(--color-medium-gray);
+  max-width: 600px;
+  margin: 0 auto 40px;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* Join Waitlist Inline Box */
+.lq-join-box {
+  max-width: 520px;
+  margin: 0 auto 32px;
+  text-align: left;
+}
+
+.lq-join-form-row {
+  display: flex;
+  gap: 8px;
+}
+
+.lq-input {
+  flex: 1;
+  background: var(--color-white);
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 0.9375rem;
+  color: var(--color-near-black);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.lq-input:focus {
+  border-color: var(--color-black);
+}
+
+.lq-input::placeholder {
+  color: var(--color-light-gray);
+}
+
+.lq-join-helper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 0.8125rem;
+  color: var(--color-medium-gray);
+}
+
+.lq-text-link {
+  color: var(--color-near-black);
+  text-decoration: underline;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 0.8125rem;
+  padding: 0;
+  font-weight: 500;
+}
+
+.lq-text-link:hover {
+  color: var(--color-black);
+}
+
+.lq-form-error-msg {
+  font-size: 0.8125rem;
+  color: #171717;
+  background: var(--color-bg-gray);
+  border: 1px solid var(--color-border-gray);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  margin-top: 10px;
+}
+
+/* ==========================================================================
+   Personalized Waitlist Card (Monochrome Dashboard Treatment)
+   ========================================================================== */
+.lq-card-personalized {
+  background: var(--color-white);
+  border: 1px solid var(--color-black);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  text-align: left;
+  box-shadow: var(--shadow-md);
+  margin: 0 auto;
+  max-width: 580px;
+  animation: lqFadeIn 0.25s ease-out forwards;
+}
+
+@keyframes lqFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lq-card-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border-gray);
+}
+
+.lq-status-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.lq-status-email {
+  font-size: 0.8125rem;
+  color: var(--color-medium-gray);
+  margin-top: 2px;
+}
+
+/* Big Position Number Display */
+.lq-position-hero {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.lq-position-badge-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.lq-position-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: var(--color-medium-gray);
+}
+
+.lq-position-value {
+  font-size: 3.75rem;
+  font-weight: 700;
+  color: var(--color-black);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin-top: 4px;
+}
+
+.lq-position-gain-tag {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-black);
+  background: var(--color-bg-gray);
+  border: 1px solid var(--color-border-gray);
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+}
+
+/* 2-Column Stats Grid */
+.lq-stat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.lq-stat-box {
+  background: var(--color-bg-gray);
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.lq-stat-box-label {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  color: var(--color-medium-gray);
+}
+
+.lq-stat-box-num {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-black);
+  margin-top: 2px;
+}
+
+/* Referral Code & Links Section */
+.lq-code-container {
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.lq-code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.lq-code-header-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-medium-gray);
+}
+
+.lq-code-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.lq-code-pill {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-black);
+  background: var(--color-white);
+  border: 1px solid var(--color-border-gray);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.05em;
+}
+
+/* Grayscale Reward & Progress Track */
+.lq-reward-progress-box {
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.lq-reward-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.lq-reward-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-near-black);
+}
+
+.lq-reward-fraction {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.lq-ascii-track {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--color-black);
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+/* Grayscale Progress Bar */
+.lq-bar-track {
+  height: 6px;
+  background: var(--color-border-gray);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.lq-bar-fill {
+  height: 100%;
+  background: var(--color-black);
+  border-radius: var(--radius-pill);
+  transition: width 0.4s ease;
+}
+
+.lq-next-reward-text {
+  font-size: 0.8125rem;
+  color: var(--color-medium-gray);
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border-gray);
+}
+
+/* Milestone List (Grayscale) */
+.lq-milestones-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.lq-milestone-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: var(--color-bg-gray);
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+}
+
+.lq-milestone-row.is-unlocked {
+  background: var(--color-black);
+  color: var(--color-white);
+  border-color: var(--color-black);
+}
+
+.lq-milestone-row.is-unlocked .lq-milestone-pts {
+  color: var(--color-light-gray);
+}
+
+.lq-milestone-pts {
+  font-family: var(--font-mono);
+  color: var(--color-medium-gray);
+}
+
+/* Action Button Grid */
+.lq-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+/* ==========================================================================
+   Product Preview Mockup (Monochrome SaaS Screenshot)
+   ========================================================================== */
+.lq-preview-section {
+  padding: 0 0 96px;
+}
+
+.lq-mockup-frame {
+  max-width: 980px;
+  margin: 0 auto;
+  background: var(--color-white);
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.lq-mockup-header {
+  height: 40px;
+  background: var(--color-bg-gray);
+  border-bottom: 1px solid var(--color-border-gray);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 8px;
+}
+
+.lq-mockup-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.lq-mockup-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-border-gray);
+}
+
+.lq-mockup-search {
+  margin-left: 16px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border-gray);
+  border-radius: 4px;
+  padding: 3px 12px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-medium-gray);
+  width: 240px;
+}
+
+.lq-mockup-body {
+  padding: 36px 32px;
+  background: var(--color-white);
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+.lq-mockup-card {
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+.lq-mockup-card-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-medium-gray);
+  margin-bottom: 8px;
+}
+
+.lq-mockup-number {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--color-black);
+  letter-spacing: -0.03em;
+}
+
+/* ==========================================================================
+   Sections (Light & Dark rhythm)
+   ========================================================================== */
+.lq-section {
+  padding: 96px 0;
+}
+
+.lq-section-header {
+  text-align: left;
+  max-width: 640px;
+  margin-bottom: 64px;
+}
+
+.lq-section-eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-medium-gray);
+  margin-bottom: 12px;
+}
+
+.lq-section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-black);
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+
+.lq-section-desc {
+  font-size: 1.125rem;
+  color: var(--color-medium-gray);
+  line-height: 1.6;
+}
+
+/* Features Grid */
+.lq-grid-2x2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.lq-feature-item {
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-md);
+  padding: 32px;
+  background: var(--color-white);
+  transition: border-color 0.15s ease;
+}
+
+.lq-feature-item:hover {
+  border-color: var(--color-black);
+}
+
+.lq-feature-icon {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--color-black);
+  margin-bottom: 16px;
+}
+
+.lq-feature-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-black);
+  margin-bottom: 8px;
+}
+
+.lq-feature-text {
+  font-size: 0.9375rem;
+  color: var(--color-medium-gray);
+  line-height: 1.6;
+}
+
+/* How It Works (Numbered list) */
+.lq-steps-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.lq-step-box {
+  border-top: 2px solid var(--color-black);
+  padding-top: 20px;
+}
+
+.lq-step-number {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-medium-gray);
+  margin-bottom: 12px;
+}
+
+.lq-step-heading {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--color-black);
+  margin-bottom: 8px;
+}
+
+.lq-step-info {
+  font-size: 0.875rem;
+  color: var(--color-medium-gray);
+  line-height: 1.6;
+}
+
+/* Dark Section Alternate Rhythm */
+.lq-section-dark {
+  background: var(--color-near-black);
+  color: var(--color-white);
+  padding: 112px 0;
+}
+
+.lq-section-dark .lq-section-title {
+  color: var(--color-white);
+}
+
+.lq-section-dark .lq-section-eyebrow {
+  color: var(--color-light-gray);
+}
+
+.lq-section-dark .lq-section-desc {
+  color: var(--color-light-gray);
+}
+
+.lq-section-dark .lq-stat-item-num {
+  color: var(--color-white);
+}
+
+.lq-section-dark .lq-stat-item-label {
+  color: var(--color-light-gray);
+}
+
+/* Stats in Dark Section */
+.lq-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  padding-top: 48px;
+  border-top: 1px solid var(--color-border-dark);
+}
+
+.lq-stat-item-num {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.lq-stat-item-label {
+  font-size: 0.875rem;
+  color: var(--color-medium-gray);
+}
+
+/* Testimonial Quote in Dark Section */
+.lq-quote-box {
+  max-width: 800px;
+  margin: 64px 0 0;
+  padding-top: 48px;
+  border-top: 1px solid var(--color-border-dark);
+}
+
+.lq-quote-text {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: #E5E5E5;
+  margin-bottom: 16px;
+  font-weight: 400;
+}
+
+.lq-quote-author {
+  font-size: 0.875rem;
+  color: var(--color-light-gray);
+}
+
+/* Final CTA Section */
+.lq-final-cta {
+  padding: 128px 0;
+  text-align: center;
+  background: var(--color-white);
+}
+
+.lq-final-cta-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--color-black);
+  letter-spacing: -0.035em;
+  margin-bottom: 16px;
+}
+
+.lq-final-cta-subtitle {
+  font-size: 1.125rem;
+  color: var(--color-medium-gray);
+  max-width: 520px;
+  margin: 0 auto 32px;
+}
+
+/* Footer */
+.lq-footer {
+  border-top: 1px solid var(--color-border-gray);
+  padding: 48px 0 32px;
+  background: var(--color-white);
+  font-size: 0.8125rem;
+  color: var(--color-medium-gray);
+}
+
+.lq-footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.lq-footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.lq-footer-links a:hover {
+  color: var(--color-black);
+}
+
+/* ==========================================================================
+   Monochrome Modals & Toast
+   ========================================================================== */
+.lq-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+  animation: lqFadeIn 0.15s ease-out forwards;
+}
+
+.lq-modal-dialog {
+  background: var(--color-white);
+  border: 1px solid var(--color-black);
+  border-radius: var(--radius-lg);
+  max-width: 440px;
+  width: 100%;
+  padding: 28px;
+  box-shadow: var(--shadow-lg);
+}
+
+.lq-modal-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.lq-modal-title-text {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.lq-modal-x {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--color-medium-gray);
+  cursor: pointer;
+}
+
+.lq-modal-x:hover {
+  color: var(--color-black);
+}
+
+/* Toast (Simple Monochrome Badge) */
+.lq-toast-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--color-black);
+  color: var(--color-white);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  animation: lqFadeIn 0.15s ease-out forwards;
+}
+
+/* ==========================================================================
+   Responsive Design (Mobile First Optimizations)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .lq-hero-title {
+    font-size: 2.75rem;
+  }
+  .lq-grid-2x2 {
+    grid-template-columns: 1fr;
+  }
+  .lq-steps-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+  .lq-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+  .lq-mockup-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .lq-hero {
+    padding: 64px 0 48px;
+  }
+  .lq-hero-title {
+    font-size: 2.25rem;
+  }
+  .lq-hero-subtitle {
+    font-size: 1rem;
+  }
+  .lq-join-form-row {
+    flex-direction: column;
+  }
+  .lq-card-personalized {
+    padding: 24px 18px;
+  }
+  .lq-position-hero {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .lq-stat-row {
+    grid-template-columns: 1fr;
+  }
+  .lq-card-actions {
+    flex-direction: column;
+  }
+  .lq-code-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .lq-steps-row {
+    grid-template-columns: 1fr;
+  }
+  .lq-stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .lq-nav-links {
+    display: none;
+  }
+  .lq-final-cta-title {
+    font-size: 2.25rem;
+  }
+}

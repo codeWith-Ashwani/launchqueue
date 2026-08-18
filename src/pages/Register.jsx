@@ -25,54 +25,74 @@ export default function Register() {
   }
 
   return (
-    <div style={{ maxWidth: 380, margin: "80px auto", padding: 24 }}>
-      <h1 style={{ marginBottom: 24 }}>Create your account</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={inputStyle}
-        />
-        <input
-          type="password"
-          placeholder="Password (min 6 characters)"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={inputStyle}
-        />
-        {error && <p style={{ color: "red", fontSize: 14 }}>{error}</p>}
-        <button type="submit" disabled={loading} style={buttonStyle}>
-          {loading ? "Creating account..." : "Create account"}
-        </button>
-      </form>
-      <p style={{ marginTop: 16, fontSize: 14 }}>
-        Already have an account? <Link to="/login">Log in</Link>
-      </p>
+    <div style={{ background: "var(--color-white)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <nav className="lq-navbar">
+        <div className="lq-container lq-navbar-inner">
+          <Link to="/" className="lq-logo">
+            <div className="lq-logo-mark">LQ</div>
+            <span>LaunchQueue</span>
+          </Link>
+          <Link to="/" className="lq-btn lq-btn-ghost" style={{ fontSize: "0.8125rem" }}>
+            ← Back to Home
+          </Link>
+        </div>
+      </nav>
+
+      <div style={{ maxWidth: 400, width: "100%", margin: "80px auto", padding: "0 24px" }}>
+        <div style={{ marginBottom: 32, textAlign: "center" }}>
+          <h1 style={{ fontSize: "1.75rem", marginBottom: 8, color: "var(--color-black)" }}>Create Founder Account</h1>
+          <p style={{ fontSize: "0.875rem", color: "var(--color-medium-gray)" }}>
+            Free for your first 500 signups. No credit card required.
+          </p>
+        </div>
+
+        <div style={{ border: "1px solid var(--color-border-gray)", borderRadius: "var(--radius-lg)", padding: 28, background: "var(--color-white)", boxShadow: "var(--shadow-sm)" }}>
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--color-medium-gray)", marginBottom: 6 }}>
+                Work email
+              </label>
+              <input
+                type="email"
+                placeholder="founder@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="lq-input"
+                style={{ width: "100%" }}
+              />
+            </div>
+
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--color-medium-gray)", marginBottom: 6 }}>
+                Password (min 6 characters)
+              </label>
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="lq-input"
+                style={{ width: "100%" }}
+              />
+            </div>
+
+            {error && <div className="lq-form-error-msg" style={{ marginBottom: 16 }}>{error}</div>}
+
+            <button type="submit" disabled={loading} className="lq-btn lq-btn-primary" style={{ width: "100%", padding: "12px 16px" }}>
+              {loading ? "Creating account..." : "Start Building Free →"}
+            </button>
+          </form>
+        </div>
+
+        <p style={{ marginTop: 24, textAlign: "center", fontSize: "0.875rem", color: "var(--color-medium-gray)" }}>
+          Already have an account?{" "}
+          <Link to="/login" style={{ color: "var(--color-black)", fontWeight: 600, textDecoration: "underline" }}>
+            Log in
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
-
-const inputStyle = {
-  display: "block",
-  width: "100%",
-  padding: "10px 12px",
-  marginBottom: 12,
-  border: "1px solid #ddd",
-  borderRadius: 8,
-  fontSize: 14,
-};
-
-const buttonStyle = {
-  width: "100%",
-  padding: "10px 12px",
-  background: "#111",
-  color: "#fff",
-  border: "none",
-  borderRadius: 8,
-  cursor: "pointer",
-  fontSize: 14,
-};

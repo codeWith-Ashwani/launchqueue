@@ -1,65 +1,223 @@
-import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { useWaitlist } from "../hooks/useWaitlist";
 import SignupForm from "../components/SignupForm";
+import PersonalizedWaitlistCard from "../components/PersonalizedWaitlistCard";
+import CheckStatusModal from "../components/CheckStatusModal";
 
 export default function WaitlistPage() {
   const { slug } = useParams();
   const { waitlist, loading, error } = useWaitlist(slug);
+  const [signupData, setSignupData] = useState(null);
+  const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
 
-  if (loading) return <div style={{ padding: 40, textAlign: "center" }}>Loading...</div>;
-  if (error) return <div style={{ padding: 40, textAlign: "center" }}>{error}</div>;
+  const [searchParams] = useSearchParams();
+  const refFromUrl = searchParams.get("ref");
 
-  const accent = waitlist.accentColor || "#111111";
+  // Restore saved session for this waitlist
+  useEffect(() => {
+    try {
+      const savedStr = localStorage.getItem(`lq_user_signup_${slug}`);
+      const saved = savedStr ? JSON.parse(savedStr) : null;
+
+      if (refFromUrl) {
+        sessionStorage.setItem("lq_active_ref_code", refFromUrl);
+        // If there's an existing saved session, only keep it if it is this user's own completed signup (own refCode !== the referrer's refCode)
+        if (saved && saved.refCode && saved.refCode !== refFromUrl && saved.email) {
+          setSignupData(saved);
+        } else {
+          // It's a new visitor arriving via the referrer's link -> show public signup form!
+          localStorage.removeItem(`lq_user_signup_${slug}`);
+          setSignupData(null);
+        }
+      } else if (saved) {
+        setSignupData(saved);
+      }
+    } catch {
+      // ignore
+    }
+  }, [slug, refFromUrl]);
+
+  if (loading) {
+    return (
+      <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ color: "var(--color-medium-gray)", fontSize: "0.9375rem" }}>Loading launch page...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ minHeight: "80vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
+        <h2 style={{ color: "var(--color-black)" }}>Waitlist Not Found</h2>
+        <p style={{ color: "var(--color-medium-gray)" }}>{error}</p>
+        <Link to="/" className="lq-btn lq-btn-secondary">
+          ← Return to LaunchQueue
+        </Link>
+      </div>
+    );
+  }
+
   const headline = waitlist.heroHeadline || waitlist.name;
   const subheadline = waitlist.heroSubheadline || waitlist.description;
   const features = waitlist.features?.length ? waitlist.features : [];
+  const milestones = waitlist.milestones?.length ? waitlist.milestones : [];
+
+  function handleSignupSuccess(data) {
+    const enriched = {
+      ...data,
+      waitlistName: waitlist.name,
+      milestones: waitlist.milestones,
+    };
+    setSignupData(enriched);
+    localStorage.setItem(`lq_user_signup_${slug}`, JSON.stringify(enriched));
+  }
+
+  function handleReset() {
+    localStorage.removeItem(`lq_user_signup_${slug}`);
+    setSignupData(null);
+  }
+
+  function handleUpdate(updated) {
+    setSignupData(updated);
+    localStorage.setItem(`lq_user_signup_${slug}`, JSON.stringify(updated));
+  }
 
   return (
-    <div style={{ fontFamily: "-apple-system, sans-serif" }}>
-      <div
-        style={{
-          background: waitlist.heroImageUrl
-            ? `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(${waitlist.heroImageUrl}) center/cover`
-            : `linear-gradient(135deg, ${accent}, #333)`,
-          color: "#fff",
-          padding: "100px 24px 80px",
-          textAlign: "center",
-        }}
-      >
-        <h1 style={{ fontSize: 40, marginBottom: 12, maxWidth: 640, marginInline: "auto" }}>{headline}</h1>
-        {subheadline && (
-          <p style={{ fontSize: 17, opacity: 0.9, maxWidth: 480, marginInline: "auto", marginBottom: 32 }}>
-            {subheadline}
-          </p>
-        )}
-        <p style={{ fontSize: 13, opacity: 0.75, marginBottom: 20 }}>
-          {waitlist.totalSignups} people already on the list
-        </p>
-        <div style={{ maxWidth: 420, marginInline: "auto" }}>
-          <SignupForm slug={slug} accentColor={accent} ctaText={waitlist.ctaText} />
-        </div>
-      </div>
-
-      {features.length > 0 && (
-        <div
-          style={{
-            maxWidth: 780,
-            margin: "0 auto",
-            padding: "60px 24px",
-            display: "grid",
-            gridTemplateColumns: `repeat(${Math.min(features.length, 3)}, 1fr)`,
-            gap: 32,
-          }}
-        >
-          {features.map((f, i) => (
-            <div key={i} style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>{f.icon || "✨"}</div>
-              <h3 style={{ fontSize: 16, marginBottom: 6 }}>{f.title}</h3>
-              <p style={{ fontSize: 14, color: "#666" }}>{f.description}</p>
+    <div style={{ background: "var(--color-white)", minHeight: "100vh" }}>
+      {/* Monochrome Navbar */}
+      <nav className="lq-navbar">
+        <div className="lq-container lq-navbar-inner">
+          <div className="lq-logo">
+            <div className="lq-logo-mark">
+              {waitlist.name.charAt(0).toUpperCase()}
             </div>
-          ))}
+            <span>{waitlist.name}</span>
+          </div>
+
+          <div className="lq-nav-actions">
+            <Link to="/" className="lq-btn lq-btn-ghost" style={{ fontSize: "0.8125rem" }}>
+              Powered by LaunchQueue
+            </Link>
+          </div>
         </div>
+      </nav>
+
+      {/* Hero Section */}
+      <header className="lq-hero">
+        <div className="lq-container">
+          <div className="lq-pill">
+            <span className="lq-pill-dot" />
+            <span>Official Early Access Queue</span>
+          </div>
+
+          <h1 className="lq-hero-title">{headline}</h1>
+
+          {subheadline && (
+            <p className="lq-hero-subtitle">{subheadline}</p>
+          )}
+
+          {/* Same-page personalized in-place view */}
+          <div style={{ maxWidth: 580, margin: "0 auto 32px" }}>
+            {signupData ? (
+              <PersonalizedWaitlistCard
+                signupData={signupData}
+                slug={slug}
+                onReset={handleReset}
+                onUpdate={handleUpdate}
+              />
+            ) : (
+              <div className="lq-join-box">
+                <SignupForm
+                  slug={slug}
+                  ctaText={waitlist.ctaText || "Join the Waitlist →"}
+                  onSuccess={handleSignupSuccess}
+                />
+                <div className="lq-join-helper">
+                  <span>{waitlist.totalSignups} subscribers in queue</span>
+                  <button
+                    type="button"
+                    onClick={() => setIsCheckModalOpen(true)}
+                    className="lq-text-link"
+                  >
+                    Check existing rank
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Features Grid if present */}
+      {features.length > 0 && (
+        <section className="lq-section" style={{ borderTop: "1px solid var(--color-border-gray)" }}>
+          <div className="lq-container">
+            <div className="lq-section-header">
+              <div className="lq-section-eyebrow">Product Overview</div>
+              <h2 className="lq-section-title">What to expect from {waitlist.name}</h2>
+            </div>
+
+            <div className="lq-grid-2x2">
+              {features.map((f, i) => (
+                <div key={i} className="lq-feature-item">
+                  <div className="lq-feature-icon">0{i + 1}</div>
+                  <h3 className="lq-feature-name">{f.title}</h3>
+                  <p className="lq-feature-text">{f.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
+
+      {/* Milestones if present */}
+      {milestones.length > 0 && (
+        <section className="lq-section" style={{ background: "var(--color-bg-subtle)", borderTop: "1px solid var(--color-border-gray)" }}>
+          <div className="lq-container" style={{ maxWidth: 720 }}>
+            <div className="lq-section-header" style={{ textAlign: "center", margin: "0 auto 48px" }}>
+              <div className="lq-section-eyebrow">Referral Rewards</div>
+              <h2 className="lq-section-title" style={{ fontSize: "2rem" }}>Invite friends to unlock perks</h2>
+              <p className="lq-section-desc">
+                Every friend who joins using your invite link jumps you 5 spots ahead.
+              </p>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {milestones.map((m, idx) => (
+                <div key={idx} style={{ background: "var(--color-white)", border: "1px solid var(--color-border-gray)", borderRadius: "var(--radius-sm)", padding: "14px 18px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ fontWeight: 600, fontSize: "0.9375rem", color: "var(--color-black)" }}>{m.reward}</div>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.8125rem", color: "var(--color-medium-gray)" }}>
+                    {m.referrals} {m.referrals === 1 ? "Referral" : "Referrals"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Minimal Footer */}
+      <footer className="lq-footer">
+        <div className="lq-container lq-footer-inner">
+          <div>
+            © {new Date().getFullYear()} {waitlist.name}. Built with LaunchQueue.
+          </div>
+          <div>
+            <Link to="/" className="lq-btn lq-btn-secondary" style={{ fontSize: "0.75rem" }}>
+              Create your own waitlist →
+            </Link>
+          </div>
+        </div>
+      </footer>
+
+      {/* Check status modal */}
+      <CheckStatusModal
+        isOpen={isCheckModalOpen}
+        onClose={() => setIsCheckModalOpen(false)}
+        slug={slug}
+        onFound={handleSignupSuccess}
+      />
     </div>
   );
 }
