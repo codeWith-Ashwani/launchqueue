@@ -54,10 +54,12 @@ export default function WaitlistDetail() {
         </a>
       </p>
 
-      <div style={{ display: "flex", gap: 12, marginBottom: 32 }}>
-        <StatCard label="Total signups" value={stats.totalSignups} />
-        <StatCard label="Signups today" value={stats.signupsToday} />
-        <StatCard label="Referral rate" value={`${stats.referralRate}%`} />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 12, marginBottom: 32 }}>
+        <StatCard label="Visitors" value={stats.totalVisitors || 0} />
+        <StatCard label="Signups" value={stats.totalSignups || 0} />
+        <StatCard label="Conversion rate" value={`${stats.conversionRate !== undefined ? stats.conversionRate : 0}%`} />
+        <StatCard label="Signups today" value={stats.signupsToday || 0} />
+        <StatCard label="Referral rate" value={`${stats.referralRate || 0}%`} />
       </div>
 
       <h3 style={{ marginBottom: 12 }}>Signups over time</h3>
