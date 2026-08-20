@@ -1,15 +1,21 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { useWaitlist } from "../hooks/useWaitlist";
+import api from "../api/axios";
 import SignupForm from "../components/SignupForm";
 import PersonalizedWaitlistCard from "../components/PersonalizedWaitlistCard";
 import CheckStatusModal from "../components/CheckStatusModal";
+import ReferrerLeaderboard from "../components/ReferrerLeaderboard";
+import LiveActivityFeed from "../components/LiveActivityFeed";
 
 export default function WaitlistPage() {
   const { slug } = useParams();
   const { waitlist, loading, error } = useWaitlist(slug);
   const [signupData, setSignupData] = useState(null);
   const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+  const [leaderboardError, setLeaderboardError] = useState("");
 
   const [searchParams] = useSearchParams();
   const refFromUrl = searchParams.get("ref");
@@ -37,6 +43,38 @@ export default function WaitlistPage() {
       // ignore
     }
   }, [slug, refFromUrl]);
+
+  // Fetch public leaderboard
+  useEffect(() => {
+    if (!slug) return;
+    api
+      .get(`/w/${slug}/leaderboard`)
+      .then((res) => {
+        setLeaderboard(res.data?.leaderboard || []);
+      })
+      .catch((err) => {
+        console.error("Leaderboard load failed:", err);
+        setLeaderboardError("Failed to load leaderboard");
+      })
+      .finally(() => {
+        setLeaderboardLoading(false);
+      });
+  }, [slug]);
+
+  // Lightweight pageview tracking with deduplication
+  useEffect(() => {
+    if (!slug) return;
+    try {
+      let visitorId = localStorage.getItem("lq_visitor_id");
+      if (!visitorId) {
+        visitorId = "vis_" + Math.random().toString(36).substring(2, 11) + "_" + Date.now();
+        localStorage.setItem("lq_visitor_id", visitorId);
+      }
+      api.post(`/w/${slug}/visit`, { visitorId }).catch(() => {});
+    } catch {
+      // silent catch
+    }
+  }, [slug]);
 
   if (loading) {
     return (
@@ -146,6 +184,9 @@ export default function WaitlistPage() {
               </div>
             )}
           </div>
+
+          {/* Live Activity Feed */}
+          <LiveActivityFeed slug={slug} />
         </div>
       </header>
 
@@ -196,6 +237,28 @@ export default function WaitlistPage() {
           </div>
         </section>
       )}
+
+      {/* Public Referrer Leaderboard Section */}
+      <section className="lq-section" style={{ borderTop: "1px solid var(--color-border-gray)" }}>
+        <div className="lq-container" style={{ maxWidth: 720 }}>
+          <div className="lq-section-header" style={{ textAlign: "center", margin: "0 auto 36px" }}>
+            <div className="lq-section-eyebrow">Top Referrers</div>
+            <h2 className="lq-section-title" style={{ fontSize: "2rem" }}>Referral Leaderboard</h2>
+            <p className="lq-section-desc">
+              Top community advocates climbing the queue by inviting friends.
+            </p>
+          </div>
+
+          <div style={{ background: "var(--color-white)", border: "1px solid var(--color-border-gray)", borderRadius: "var(--radius-md)", padding: 20, boxShadow: "var(--shadow-sm)" }}>
+            <ReferrerLeaderboard
+              referrers={leaderboard}
+              loading={leaderboardLoading}
+              error={leaderboardError}
+              isPublic={true}
+            />
+          </div>
+        </div>
+      </section>
 
       {/* Minimal Footer */}
       <footer className="lq-footer">
