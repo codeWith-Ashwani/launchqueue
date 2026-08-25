@@ -38,23 +38,23 @@ export default function WaitlistDetail() {
       }
     }
   }
-  if (loading) return <div style={{ padding: 40 }}>Loading...</div>;
-  if (error) return <div style={{ padding: 40 }}>{error}</div>;
+  if (loading) return <div className="lq-detail-container"><p className="lq-empty-text">Loading...</p></div>;
+  if (error) return <div className="lq-detail-container"><p className="lq-form-error-msg">{error}</p></div>;
 
   return (
-    <div style={{ maxWidth: 720, margin: "40px auto", padding: 24 }}>
-      <Link to="/dashboard" style={{ fontSize: 13, color: "#666" }}>
+    <div className="lq-detail-container">
+      <Link to="/dashboard" className="lq-detail-backlink">
         ← Back to dashboard
       </Link>
-      <h1 style={{ marginTop: 8 }}>{stats.waitlist.name}</h1>
-      <p style={{ color: "#666", marginBottom: 24 }}>
+      <h1 className="lq-detail-title">{stats.waitlist.name}</h1>
+      <p className="lq-detail-publiclink">
         Public link:{" "}
         <a href={`/w/${stats.waitlist.slug}`} target="_blank" rel="noreferrer">
           /w/{stats.waitlist.slug}
         </a>
       </p>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 12, marginBottom: 32 }}>
+      <div className="lq-detail-stats-grid">
         <StatCard label="Visitors" value={stats.totalVisitors || 0} />
         <StatCard label="Signups" value={stats.totalSignups || 0} />
         <StatCard label="Conversion rate" value={`${stats.conversionRate !== undefined ? stats.conversionRate : 0}%`} />
@@ -62,33 +62,27 @@ export default function WaitlistDetail() {
         <StatCard label="Referral rate" value={`${stats.referralRate || 0}%`} />
       </div>
 
-      <h3 style={{ marginBottom: 12 }}>Signups over time</h3>
+      <h3 className="lq-detail-section-title">Signups over time</h3>
       <SignupsChart data={stats.chartData} />
 
-      <h3 style={{ marginTop: 32, marginBottom: 12 }}>Top referrers</h3>
+      <h3 className="lq-detail-section-title" style={{ marginTop: 32 }}>Top referrers</h3>
       <ReferrerLeaderboard referrers={stats.topReferrers} />
 
-      <button
-        onClick={handleExport}
-        style={{
-          marginTop: 32,
-          padding: "10px 20px",
-          background: "#111",
-          color: "#fff",
-          border: "none",
-          borderRadius: 8,
-          cursor: "pointer",
-          fontSize: 14,
-        }}
-      >
-        Export signups as CSV
-      </button>
-      <Link
-        to={`/dashboard/${id}/settings`}
-        style={{ fontSize: 13, color: "#666", marginLeft: 16 }}
-      >
-        Edit landing page
-      </Link>
+      <div className="lq-detail-actions">
+        <button
+          onClick={handleExport}
+          className="lq-btn lq-btn-primary"
+        >
+          Export signups as CSV
+        </button>
+        <Link
+          to={`/dashboard/${id}/settings`}
+          className="lq-detail-backlink"
+          style={{ margin: 0 }}
+        >
+          Edit landing page →
+        </Link>
+      </div>
     </div>
   );
 }

@@ -25,7 +25,7 @@ export default function Login() {
   }
 
   return (
-    <div style={{ background: "var(--color-white)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div className="lq-form-page">
       <nav className="lq-navbar">
         <div className="lq-container lq-navbar-inner">
           <Link to="/" className="lq-logo">
@@ -38,18 +38,18 @@ export default function Login() {
         </div>
       </nav>
 
-      <div style={{ maxWidth: 400, width: "100%", margin: "80px auto", padding: "0 24px" }}>
-        <div style={{ marginBottom: 32, textAlign: "center" }}>
-          <h1 style={{ fontSize: "1.75rem", marginBottom: 8, color: "var(--color-black)" }}>Founder Login</h1>
-          <p style={{ fontSize: "0.875rem", color: "var(--color-medium-gray)" }}>
+      <div className="lq-form-container">
+        <div className="lq-form-header">
+          <h1 className="lq-form-title">Founder Login</h1>
+          <p className="lq-form-subtitle">
             Access your waitlist analytics and manage campaigns
           </p>
         </div>
 
-        <div style={{ border: "1px solid var(--color-border-gray)", borderRadius: "var(--radius-lg)", padding: 28, background: "var(--color-white)", boxShadow: "var(--shadow-sm)" }}>
+        <div className="lq-form-card">
           <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--color-medium-gray)", marginBottom: 6 }}>
+            <div className="lq-form-group">
+              <label className="lq-form-label">
                 Email address
               </label>
               <input
@@ -63,8 +63,8 @@ export default function Login() {
               />
             </div>
 
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--color-medium-gray)", marginBottom: 6 }}>
+            <div className="lq-form-group" style={{ marginBottom: 20 }}>
+              <label className="lq-form-label">
                 Password
               </label>
               <input
@@ -80,15 +80,15 @@ export default function Login() {
 
             {error && <div className="lq-form-error-msg" style={{ marginBottom: 16 }}>{error}</div>}
 
-            <button type="submit" disabled={loading} className="lq-btn lq-btn-primary" style={{ width: "100%", padding: "12px 16px" }}>
+            <button type="submit" disabled={loading} className="lq-btn lq-btn-primary lq-form-btn-full">
               {loading ? "Logging in..." : "Log in to Dashboard →"}
             </button>
           </form>
         </div>
 
-        <p style={{ marginTop: 24, textAlign: "center", fontSize: "0.875rem", color: "var(--color-medium-gray)" }}>
+        <p className="lq-form-footer">
           Don't have an account?{" "}
-          <Link to="/register" style={{ color: "var(--color-black)", fontWeight: 600, textDecoration: "underline" }}>
+          <Link to="/register">
             Create one free
           </Link>
         </p>
