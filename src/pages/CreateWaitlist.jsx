@@ -14,7 +14,7 @@ export default function CreateWaitlist() {
     setError("");
     setLoading(true);
     try {
-      const res = await api.post("/waitlists", { name, description });
+      await api.post("/waitlists", { name, description });
       navigate(`/dashboard`);
     } catch (err) {
       setError(err.response?.data?.error || "Something went wrong");
@@ -24,51 +24,36 @@ export default function CreateWaitlist() {
   }
 
   return (
-    <div style={{ maxWidth: 420, margin: "60px auto", padding: 24 }}>
-      <h1 style={{ marginBottom: 24 }}>Create a waitlist</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Waitlist name (e.g. RocketPay)"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          style={inputStyle}
-        />
-        <textarea
-          placeholder="Short description (optional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={3}
-          style={{ ...inputStyle, resize: "vertical" }}
-        />
-        {error && <p style={{ color: "red", fontSize: 14 }}>{error}</p>}
-        <button type="submit" disabled={loading} style={buttonStyle}>
-          {loading ? "Creating..." : "Create waitlist"}
+    <div className="lq-form-container">
+      <h1 className="lq-dashboard-title" style={{ marginBottom: 24 }}>Create a waitlist</h1>
+      <form onSubmit={handleSubmit} className="lq-form-card">
+        <div className="lq-form-group">
+          <label className="lq-form-label">Waitlist Name</label>
+          <input
+            type="text"
+            placeholder="Waitlist name (e.g. RocketPay)"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className="lq-input"
+            style={{ width: "100%" }}
+          />
+        </div>
+        <div className="lq-form-group">
+          <label className="lq-form-label">Description (Optional)</label>
+          <textarea
+            placeholder="Short description of your project or product"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+            className="lq-form-textarea"
+          />
+        </div>
+        {error && <div className="lq-form-error-msg" style={{ marginBottom: 16 }}>{error}</div>}
+        <button type="submit" disabled={loading} className="lq-btn lq-btn-primary lq-form-btn-full">
+          {loading ? "Creating..." : "Create waitlist →"}
         </button>
       </form>
     </div>
   );
 }
-
-const inputStyle = {
-  display: "block",
-  width: "100%",
-  padding: "10px 12px",
-  marginBottom: 12,
-  border: "1px solid #ddd",
-  borderRadius: 8,
-  fontSize: 14,
-  fontFamily: "inherit",
-};
-
-const buttonStyle = {
-  width: "100%",
-  padding: "10px 12px",
-  background: "#111",
-  color: "#fff",
-  border: "none",
-  borderRadius: 8,
-  cursor: "pointer",
-  fontSize: 14,
-};

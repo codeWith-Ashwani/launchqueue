@@ -1041,3 +1041,344 @@ button, input, textarea {
     font-size: 2.25rem;
   }
 }
+
+/* ==========================================================================
+   Founder Dashboard & Admin Views
+   ========================================================================== */
+.lq-dashboard-container {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 24px;
+}
+
+.lq-dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.lq-dashboard-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+
+.lq-dashboard-sub {
+  color: var(--color-medium-gray);
+  font-size: 0.875rem;
+}
+
+.lq-dashboard-create-btn {
+  margin-bottom: 24px;
+}
+
+.lq-onboarding-card {
+  background: var(--color-bg-gray);
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.lq-onboarding-title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--color-near-black);
+  margin-bottom: 12px;
+}
+
+.lq-onboarding-list {
+  padding-left: 20px;
+  font-size: 0.875rem;
+  color: var(--color-medium-gray);
+  line-height: 1.8;
+}
+
+.lq-waitlist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lq-waitlist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--color-near-black);
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.lq-waitlist-item:hover {
+  background: var(--color-bg-gray);
+  border-color: #D4D4D4;
+}
+
+.lq-waitlist-item-count {
+  color: var(--color-medium-gray);
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
+.lq-empty-text {
+  color: var(--color-light-gray);
+  font-size: 0.875rem;
+  padding: 16px 0;
+}
+
+/* ==========================================================================
+   Auth & Generic Form Layouts
+   ========================================================================== */
+.lq-form-page {
+  background: var(--color-white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.lq-form-container {
+  max-width: 420px;
+  width: 100%;
+  margin: 60px auto;
+  padding: 0 24px;
+}
+
+.lq-form-header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.lq-form-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-black);
+  margin-bottom: 8px;
+}
+
+.lq-form-subtitle {
+  font-size: 0.875rem;
+  color: var(--color-medium-gray);
+}
+
+.lq-form-card {
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  background: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.lq-form-group {
+  margin-bottom: 16px;
+}
+
+.lq-form-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-medium-gray);
+  margin-bottom: 6px;
+}
+
+.lq-form-textarea {
+  width: 100%;
+  background: var(--color-white);
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: var(--color-near-black);
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s ease;
+}
+
+.lq-form-textarea:focus {
+  border-color: var(--color-black);
+}
+
+.lq-form-btn-full {
+  width: 100%;
+  padding: 12px 16px;
+}
+
+.lq-form-footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--color-medium-gray);
+}
+
+.lq-form-footer a {
+  color: var(--color-black);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   Pricing Page
+   ========================================================================== */
+.lq-pricing-container {
+  max-width: 780px;
+  margin: 60px auto;
+  padding: 24px;
+}
+
+.lq-pricing-header-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 32px;
+}
+
+.lq-pricing-grid {
+  display: flex;
+  gap: 16px;
+}
+
+.lq-pricing-card {
+  flex: 1;
+  background: var(--color-white);
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.lq-pricing-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.lq-pricing-card-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-black);
+  margin-bottom: 16px;
+}
+
+.lq-pricing-card-features {
+  padding-left: 18px;
+  margin-bottom: 20px;
+  font-size: 0.8125rem;
+  color: var(--color-medium-gray);
+  flex: 1;
+  line-height: 1.6;
+}
+
+.lq-pricing-card-btn {
+  width: 100%;
+}
+
+/* ==========================================================================
+   Welcome / Standalone Confirmation Page
+   ========================================================================== */
+.lq-welcome-container {
+  max-width: 420px;
+  margin: 80px auto;
+  padding: 24px;
+  text-align: center;
+}
+
+.lq-welcome-position {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--color-black);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.lq-welcome-sub {
+  color: var(--color-medium-gray);
+  font-size: 0.9375rem;
+  margin-bottom: 32px;
+}
+
+.lq-welcome-sharebox {
+  background: var(--color-bg-gray);
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 0.8125rem;
+  color: var(--color-near-black);
+  font-family: var(--font-mono);
+  margin-bottom: 12px;
+  word-break: break-all;
+}
+
+.lq-welcome-help {
+  font-size: 0.8125rem;
+  color: var(--color-light-gray);
+  margin-top: 24px;
+}
+
+/* ==========================================================================
+   Waitlist Detail & Analytics
+   ========================================================================== */
+.lq-detail-container {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 24px;
+}
+
+.lq-detail-backlink {
+  font-size: 0.8125rem;
+  color: var(--color-medium-gray);
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.lq-detail-backlink:hover {
+  color: var(--color-black);
+}
+
+.lq-detail-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+
+.lq-detail-publiclink {
+  color: var(--color-medium-gray);
+  font-size: 0.875rem;
+  margin-bottom: 24px;
+}
+
+.lq-detail-publiclink a {
+  color: var(--color-near-black);
+  text-decoration: underline;
+}
+
+.lq-detail-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.lq-detail-section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.lq-detail-actions {
+  margin-top: 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}

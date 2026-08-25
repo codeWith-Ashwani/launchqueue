@@ -3,6 +3,7 @@
 > **The modern, high-converting client application for LaunchQueue.**  
 > Built with React 19, Vite, and a minimal monochrome design system inspired by Vercel, Linear, and Stripe.
 
+[![CI](https://github.com/codeWith-Ashwani/launchqueue/actions/workflows/ci.yml/badge.svg)](https://github.com/codeWith-Ashwani/launchqueue/actions/workflows/ci.yml)
 [![Stack: React 19 + Vite](https://img.shields.io/badge/Stack-React%2019%20%7C%20Vite-black?style=flat-square)](https://github.com)
 [![Design: Monochrome SaaS](https://img.shields.io/badge/Design-Monochrome%20SaaS-111111?style=flat-square)](https://github.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)

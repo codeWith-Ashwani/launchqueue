@@ -22,73 +22,31 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div style={{ maxWidth: 720, margin: "40px auto", padding: 24 }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 24,
-        }}
-      >
+    <div className="lq-dashboard-container">
+      <div className="lq-dashboard-header">
         <div>
-          <h1>Dashboard</h1>
-          <p style={{ color: "#666", fontSize: 14 }}>
+          <h1 className="lq-dashboard-title">Dashboard</h1>
+          <p className="lq-dashboard-sub">
             {founder?.email} · {founder?.plan} plan
           </p>
         </div>
 
-        <button
-          onClick={logout}
-          style={{
-            padding: "8px 16px",
-            border: "1px solid #ddd",
-            background: "#fff",
-            borderRadius: 8,
-            cursor: "pointer",
-          }}
-        >
+        <button onClick={logout} className="lq-btn lq-btn-secondary">
           Log out
         </button>
       </div>
 
-      <Link
-        to="/dashboard/new"
-        style={{
-          display: "inline-block",
-          marginBottom: 24,
-          padding: "8px 16px",
-          background: "#111",
-          color: "#fff",
-          borderRadius: 8,
-          textDecoration: "none",
-          fontSize: 14,
-        }}
-      >
+      <Link to="/dashboard/new" className="lq-btn lq-btn-primary lq-dashboard-create-btn">
         + Create a waitlist
       </Link>
 
       {!loading && waitlists.length === 0 && (
-        <div
-          style={{
-            background: "#f5f5f5",
-            borderRadius: 12,
-            padding: 20,
-            marginBottom: 24,
-          }}
-        >
-          <p style={{ fontWeight: 600, marginBottom: 12 }}>
+        <div className="lq-onboarding-card">
+          <p className="lq-onboarding-title">
             Get started in 3 steps
           </p>
 
-          <ol
-            style={{
-              paddingLeft: 18,
-              fontSize: 14,
-              color: "#444",
-              lineHeight: 1.8,
-            }}
-          >
+          <ol className="lq-onboarding-list">
             <li>Create your first waitlist above</li>
             <li>
               Copy your embed code from the waitlist's settings and add it to
@@ -103,36 +61,22 @@ export default function Dashboard() {
       )}
 
       {loading ? (
-        <p>Loading...</p>
+        <p className="lq-empty-text">Loading...</p>
       ) : waitlists.length === 0 ? (
-        <p style={{ color: "#999" }}>
+        <p className="lq-empty-text">
           No waitlists yet — create your first one above.
         </p>
       ) : (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 8,
-          }}
-        >
+        <div className="lq-waitlist-list">
           {waitlists.map((w) => (
             <Link
               key={w._id}
               to={`/dashboard/${w._id}`}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                padding: "14px 16px",
-                border: "1px solid #eee",
-                borderRadius: 8,
-                textDecoration: "none",
-                color: "#111",
-              }}
+              className="lq-waitlist-item"
             >
               <span>{w.name}</span>
 
-              <span style={{ color: "#666", fontSize: 13 }}>
+              <span className="lq-waitlist-item-count">
                 {w.signupCount} signups
               </span>
             </Link>
