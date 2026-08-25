@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../api/axios";
+import HomeButton from "../components/HomeButton";
 
 const plans = [
   { id: "starter", name: "Starter", price: "$19/mo", features: ["No badge", "CSV export", "5,000 signups"] },
@@ -23,6 +25,13 @@ export default function Pricing() {
 
   return (
     <div className="lq-pricing-container">
+      <div className="lq-page-top-nav">
+        <HomeButton />
+        <Link to="/dashboard" className="lq-btn lq-btn-ghost lq-btn-sm">
+          ← Back to Dashboard
+        </Link>
+      </div>
+
       <h1 className="lq-pricing-header-title">Upgrade your plan</h1>
       <div className="lq-pricing-grid">
         {plans.map((p) => (

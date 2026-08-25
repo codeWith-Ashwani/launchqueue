@@ -12,6 +12,7 @@ import WaitlistDetail from "./pages/WaitlistDetail";
 import Pricing from "./pages/Pricing";
 import Home from "./pages/Home";
 import WaitlistSettings from "./pages/WaitlistSettings";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -27,6 +28,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               }
             />

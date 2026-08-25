@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
+import HomeButton from "../components/HomeButton";
 
 export default function CreateWaitlist() {
   const [name, setName] = useState("");
@@ -25,6 +26,13 @@ export default function CreateWaitlist() {
 
   return (
     <div className="lq-form-container">
+      <div className="lq-page-top-nav">
+        <HomeButton />
+        <Link to="/dashboard" className="lq-btn lq-btn-ghost lq-btn-sm">
+          ← Back to Dashboard
+        </Link>
+      </div>
+
       <h1 className="lq-dashboard-title lq-form-header-title">Create a waitlist</h1>
       <form onSubmit={handleSubmit} className="lq-form-card">
         <div className="lq-form-group">

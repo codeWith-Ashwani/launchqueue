@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import api from "../api/axios";
+import HomeButton from "../components/HomeButton";
 
 export default function Dashboard() {
   const { founder, logout } = useAuth();
@@ -23,17 +24,25 @@ export default function Dashboard() {
 
   return (
     <div className="lq-dashboard-container">
+      <div className="lq-page-top-nav">
+        <HomeButton />
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <Link to="/profile" className="lq-btn lq-btn-ghost lq-btn-sm">
+            ⚙ Account
+          </Link>
+          <button onClick={logout} className="lq-btn lq-btn-secondary lq-btn-sm">
+            Log out
+          </button>
+        </div>
+      </div>
+
       <div className="lq-dashboard-header">
         <div>
           <h1 className="lq-dashboard-title">Dashboard</h1>
           <p className="lq-dashboard-sub">
-            {founder?.email} · {founder?.plan} plan
+            {founder?.name ? `${founder.name} (${founder.email})` : founder?.email} · {founder?.plan} plan
           </p>
         </div>
-
-        <button onClick={logout} className="lq-btn lq-btn-secondary">
-          Log out
-        </button>
       </div>
 
       <Link to="/dashboard/new" className="lq-btn lq-btn-primary lq-dashboard-create-btn">

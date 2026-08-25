@@ -4,6 +4,7 @@ import api from "../api/axios";
 import StatCard from "../components/StatCard";
 import SignupsChart from "../components/SignupsChart";
 import ReferrerLeaderboard from "../components/ReferrerLeaderboard";
+import HomeButton from "../components/HomeButton";
 
 export default function WaitlistDetail() {
   const { id } = useParams();
@@ -43,9 +44,13 @@ export default function WaitlistDetail() {
 
   return (
     <div className="lq-detail-container">
-      <Link to="/dashboard" className="lq-detail-backlink">
-        ← Back to dashboard
-      </Link>
+      <div className="lq-page-top-nav">
+        <HomeButton />
+        <Link to="/dashboard" className="lq-detail-backlink-action">
+          ← Back to dashboard
+        </Link>
+      </div>
+
       <h1 className="lq-detail-title">{stats.waitlist.name}</h1>
       <p className="lq-detail-publiclink">
         Public link:{" "}
