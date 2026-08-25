@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -47,6 +48,10 @@ export default function Login() {
         </div>
 
         <div className="lq-form-card">
+          <GoogleSignInButton text="signin_with" />
+
+          <div className="lq-divider">or continue with email</div>
+
           <form onSubmit={handleSubmit}>
             <div className="lq-form-group">
               <label className="lq-form-label">
@@ -63,9 +68,14 @@ export default function Login() {
             </div>
 
             <div className="lq-form-group lq-form-group-spaced">
-              <label className="lq-form-label">
-                Password
-              </label>
+              <div className="lq-form-label-row">
+                <label className="lq-form-label" style={{ marginBottom: 0 }}>
+                  Password
+                </label>
+                <Link to="/forgot-password" className="lq-form-forgot-link">
+                  Forgot password?
+                </Link>
+              </div>
               <input
                 type="password"
                 placeholder="••••••••"

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -47,6 +48,10 @@ export default function Register() {
         </div>
 
         <div className="lq-form-card">
+          <GoogleSignInButton text="signup_with" />
+
+          <div className="lq-divider">or create with email</div>
+
           <form onSubmit={handleSubmit}>
             <div className="lq-form-group">
               <label className="lq-form-label">

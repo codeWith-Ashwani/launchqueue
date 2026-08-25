@@ -22,6 +22,10 @@ export function AuthProvider({ children }) {
     setFounder((prev) => (prev ? { ...prev, ...patch } : patch));
   }
 
+  function loginWithGoogle(founderData) {
+    setFounder(founderData);
+  }
+
   async function login(email, password) {
     const res = await api.post("/auth/login", { email, password });
     setFounder(res.data.founder);
@@ -48,7 +52,17 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ founder, loading, login, register, logout, updateFounder }}>
+    <AuthContext.Provider
+      value={{
+        founder,
+        loading,
+        login,
+        register,
+        loginWithGoogle,
+        logout,
+        updateFounder,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
