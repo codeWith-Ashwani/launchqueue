@@ -25,7 +25,7 @@ export default function CreateWaitlist() {
 
   return (
     <div className="lq-form-container">
-      <h1 className="lq-dashboard-title" style={{ marginBottom: 24 }}>Create a waitlist</h1>
+      <h1 className="lq-dashboard-title lq-form-header-title">Create a waitlist</h1>
       <form onSubmit={handleSubmit} className="lq-form-card">
         <div className="lq-form-group">
           <label className="lq-form-label">Waitlist Name</label>
@@ -35,8 +35,7 @@ export default function CreateWaitlist() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="lq-input"
-            style={{ width: "100%" }}
+            className="lq-input lq-input-full"
           />
         </div>
         <div className="lq-form-group">
@@ -49,7 +48,7 @@ export default function CreateWaitlist() {
             className="lq-form-textarea"
           />
         </div>
-        {error && <div className="lq-form-error-msg" style={{ marginBottom: 16 }}>{error}</div>}
+        {error && <div className="lq-form-error-msg lq-form-error-spaced">{error}</div>}
         <button type="submit" disabled={loading} className="lq-btn lq-btn-primary lq-form-btn-full">
           {loading ? "Creating..." : "Create waitlist →"}
         </button>

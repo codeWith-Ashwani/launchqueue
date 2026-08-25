@@ -65,7 +65,7 @@ export default function WaitlistDetail() {
       <h3 className="lq-detail-section-title">Signups over time</h3>
       <SignupsChart data={stats.chartData} />
 
-      <h3 className="lq-detail-section-title" style={{ marginTop: 32 }}>Top referrers</h3>
+      <h3 className="lq-detail-section-title-spaced">Top referrers</h3>
       <ReferrerLeaderboard referrers={stats.topReferrers} />
 
       <div className="lq-detail-actions">
@@ -77,8 +77,7 @@ export default function WaitlistDetail() {
         </button>
         <Link
           to={`/dashboard/${id}/settings`}
-          className="lq-detail-backlink"
-          style={{ margin: 0 }}
+          className="lq-detail-backlink-action"
         >
           Edit landing page →
         </Link>

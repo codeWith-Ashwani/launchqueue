@@ -32,7 +32,7 @@ export default function Login() {
             <div className="lq-logo-mark">LQ</div>
             <span>LaunchQueue</span>
           </Link>
-          <Link to="/" className="lq-btn lq-btn-ghost" style={{ fontSize: "0.8125rem" }}>
+          <Link to="/" className="lq-btn lq-btn-ghost lq-btn-sm">
             ← Back to Home
           </Link>
         </div>
@@ -58,12 +58,11 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="lq-input"
-                style={{ width: "100%" }}
+                className="lq-input lq-input-full"
               />
             </div>
 
-            <div className="lq-form-group" style={{ marginBottom: 20 }}>
+            <div className="lq-form-group lq-form-group-spaced">
               <label className="lq-form-label">
                 Password
               </label>
@@ -73,12 +72,11 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="lq-input"
-                style={{ width: "100%" }}
+                className="lq-input lq-input-full"
               />
             </div>
 
-            {error && <div className="lq-form-error-msg" style={{ marginBottom: 16 }}>{error}</div>}
+            {error && <div className="lq-form-error-msg lq-form-error-spaced">{error}</div>}
 
             <button type="submit" disabled={loading} className="lq-btn lq-btn-primary lq-form-btn-full">
               {loading ? "Logging in..." : "Log in to Dashboard →"}
