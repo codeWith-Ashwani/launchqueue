@@ -1543,3 +1543,167 @@ button, input, textarea {
   align-items: center;
   margin-bottom: 24px;
 }
+
+.lq-form-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.lq-form-forgot-link {
+  font-size: 0.75rem;
+  color: var(--color-medium-gray);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.lq-form-forgot-link:hover {
+  color: var(--color-black);
+}
+
+/* ==========================================================================
+   Admin Controls: Signup Management Table & Badges
+   ========================================================================== */
+.lq-table-card {
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-top: 16px;
+  margin-bottom: 24px;
+}
+
+.lq-table-toolbar {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-gray);
+}
+
+.lq-table-toolbar-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-black);
+  margin: 0;
+}
+
+.lq-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.lq-table th {
+  padding: 12px 16px;
+  background: var(--color-bg-gray);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-medium-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--color-border-gray);
+}
+
+.lq-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  vertical-align: middle;
+  color: var(--color-near-black);
+}
+
+.lq-table tr:last-child td {
+  border-bottom: none;
+}
+
+.lq-table tr:hover td {
+  background: #fafafa;
+}
+
+.lq-badge-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.lq-badge-waiting {
+  background: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+
+.lq-badge-invited {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.lq-pos-edit-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lq-pos-input {
+  width: 60px;
+  padding: 4px 8px;
+  font-size: 0.8125rem;
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-sm);
+  outline: none;
+}
+
+.lq-pos-input:focus {
+  border-color: var(--color-black);
+}
+
+.lq-funnel-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--color-medium-gray);
+  background: var(--color-bg-gray);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border-gray);
+  font-size: 0.875rem;
+}
+
+.lq-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+  color: var(--color-medium-gray);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.lq-divider::before,
+.lq-divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.lq-divider:not(:empty)::before {
+  margin-right: 12px;
+}
+
+.lq-divider:not(:empty)::after {
+  margin-left: 12px;
+}
+
+.lq-google-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 8px;
+}
