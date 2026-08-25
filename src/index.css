@@ -1382,3 +1382,41 @@ button, input, textarea {
   align-items: center;
   gap: 16px;
 }
+
+.lq-btn-sm {
+  font-size: 0.8125rem;
+}
+
+.lq-input-full {
+  width: 100%;
+}
+
+.lq-form-group-spaced {
+  margin-bottom: 20px;
+}
+
+.lq-form-error-spaced {
+  margin-bottom: 16px;
+}
+
+.lq-form-header-title {
+  margin-bottom: 24px;
+}
+
+.lq-detail-section-title-spaced {
+  margin-top: 32px;
+  margin-bottom: 12px;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.lq-detail-backlink-action {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-medium-gray);
+  display: inline-block;
+}
+
+.lq-detail-backlink-action:hover {
+  color: var(--color-black);
+}
