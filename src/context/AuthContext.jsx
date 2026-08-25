@@ -18,6 +18,10 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false));
   }, []);
 
+  function updateFounder(patch) {
+    setFounder((prev) => (prev ? { ...prev, ...patch } : patch));
+  }
+
   async function login(email, password) {
     const res = await api.post("/auth/login", { email, password });
     setFounder(res.data.founder);
@@ -44,7 +48,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ founder, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ founder, loading, login, register, logout, updateFounder }}>
       {children}
     </AuthContext.Provider>
   );

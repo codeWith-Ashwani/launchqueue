@@ -1420,3 +1420,126 @@ button, input, textarea {
 .lq-detail-backlink-action:hover {
   color: var(--color-black);
 }
+
+/* ==========================================================================
+   Founder Profile & Account Settings
+   ========================================================================== */
+.lq-profile-container {
+  max-width: 640px;
+  margin: 40px auto;
+  padding: 24px;
+}
+
+.lq-profile-header {
+  margin-bottom: 32px;
+}
+
+.lq-profile-card {
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  background: var(--color-white);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
+}
+
+.lq-profile-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.lq-profile-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.lq-profile-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
+.lq-profile-plan-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.lq-profile-plan-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lq-profile-plan-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-near-black);
+  text-transform: capitalize;
+}
+
+.lq-profile-plan-sub {
+  font-size: 0.8125rem;
+  color: var(--color-medium-gray);
+}
+
+.lq-msg-success {
+  font-size: 0.8125rem;
+  color: #047857;
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+.lq-msg-error {
+  font-size: 0.8125rem;
+  color: #B91C1C;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+.lq-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-medium-gray);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  background: transparent;
+}
+
+.lq-home-btn:hover {
+  color: var(--color-black);
+  background: var(--color-bg-gray);
+  border-color: var(--color-border-gray);
+}
+
+.lq-page-top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
+import HomeButton from "../components/HomeButton";
 
 export default function WaitlistSettings() {
   const { id } = useParams();
@@ -88,10 +89,14 @@ export default function WaitlistSettings() {
 
   return (
     <div style={{ maxWidth: 1180, margin: "32px auto", padding: "0 24px" }}>
-      <div style={{ marginBottom: 20 }}>
-        <Link to={`/dashboard/${id}`} style={{ fontSize: 13, color: "#666", textDecoration: "none" }}>
+      <div className="lq-page-top-nav" style={{ marginBottom: 16 }}>
+        <HomeButton />
+        <Link to={`/dashboard/${id}`} className="lq-btn lq-btn-ghost lq-btn-sm">
           ← Back to dashboard
         </Link>
+      </div>
+
+      <div style={{ marginBottom: 20 }}>
         <h1 style={{ margin: "8px 0 4px", fontSize: "1.75rem" }}>Landing page settings</h1>
         <p style={{ fontSize: "0.875rem", color: "#666" }}>
           Customize your public waitlist landing page. Preview changes in real time before saving.
