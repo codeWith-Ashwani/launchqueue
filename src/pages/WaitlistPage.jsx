@@ -11,7 +11,9 @@ import LiveActivityFeed from "../components/LiveActivityFeed";
 export default function WaitlistPage() {
   const { slug } = useParams();
   const { waitlist, loading, error } = useWaitlist(slug);
+  const [statusError, setStatusError] = useState("");
   const [signupData, setSignupData] = useState(null);
+  const [statusTokenFromLink] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get("status"));
   const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
@@ -22,6 +24,18 @@ export default function WaitlistPage() {
 
   // Restore saved session for this waitlist
   useEffect(() => {
+    let active = true;
+    const privateToken = statusTokenFromLink;
+    if (privateToken) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      api.get(`/w/${slug}/position`, { headers: { "X-Subscriber-Token": privateToken } })
+        .then((res) => {
+          if (!active) return;
+          setSignupData(res.data);
+          localStorage.setItem(`lq_user_signup_${slug}`, JSON.stringify(res.data));
+        }).catch(() => { if (active) setStatusError("This private link is invalid or expired. Request a new status link."); });
+      return () => { active = false; };
+    }
     try {
       const savedStr = localStorage.getItem(`lq_user_signup_${slug}`);
       const saved = savedStr ? JSON.parse(savedStr) : null;
@@ -29,20 +43,20 @@ export default function WaitlistPage() {
       if (refFromUrl) {
         sessionStorage.setItem("lq_active_ref_code", refFromUrl);
         // If there's an existing saved session, only keep it if it is this user's own completed signup (own refCode !== the referrer's refCode)
-        if (saved && saved.refCode && saved.refCode !== refFromUrl && saved.email) {
+        if (saved && saved.statusToken && saved.refCode && saved.refCode !== refFromUrl && saved.email) {
           setSignupData(saved);
         } else {
           // It's a new visitor arriving via the referrer's link -> show public signup form!
           localStorage.removeItem(`lq_user_signup_${slug}`);
           setSignupData(null);
         }
-      } else if (saved) {
+      } else if (saved?.statusToken) {
         setSignupData(saved);
       }
     } catch {
       // ignore
     }
-  }, [slug, refFromUrl]);
+  }, [slug, refFromUrl, statusTokenFromLink]);
 
   // Fetch public leaderboard
   useEffect(() => {
@@ -155,6 +169,7 @@ export default function WaitlistPage() {
             <p className="lq-hero-subtitle">{subheadline}</p>
           )}
 
+          {statusError && <p role="alert">{statusError}</p>}
           {/* Same-page personalized in-place view */}
           <div style={{ maxWidth: 580, margin: "0 auto 32px" }}>
             {signupData ? (

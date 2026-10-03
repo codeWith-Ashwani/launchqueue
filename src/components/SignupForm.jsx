@@ -8,6 +8,7 @@ export default function SignupForm({
   onSuccess,
 }) {
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [searchParams] = useSearchParams();
@@ -45,7 +46,9 @@ export default function SignupForm({
       sessionStorage.removeItem("lq_active_ref_code");
       localStorage.removeItem("lq_active_ref_code");
 
-      if (onSuccess) {
+      if (res.data.statusLinkSent) {
+        setMessage(res.data.message);
+      } else if (onSuccess) {
         onSuccess(res.data);
       }
     } catch (err) {
@@ -82,6 +85,7 @@ export default function SignupForm({
           {loading ? "Joining..." : ctaText}
         </button>
       </div>
+      {message && <p role="status">{message}</p>}
       {error && <div className="lq-form-error-msg">{error}</div>}
     </form>
   );
