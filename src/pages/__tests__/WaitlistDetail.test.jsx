@@ -142,6 +142,33 @@ describe("WaitlistDetail Page - CSV Export, Admin Controls & Funnel Analytics", 
     expect(exportBtn).toBeDisabled();
   });
 
+  it("shows queued delivery separately from failed delivery and invitation access", async () => {
+    api.get.mockImplementation((url) => Promise.resolve({ data: url.includes("/stats") ? {
+      ...mockStatsWithSignups,
+      signups: mockStatsWithSignups.signups.map((signup, index) => ({
+        ...signup, status: "waiting", invitationState: index ? "failed" : "queued",
+      })),
+    } : mockFunnelData }));
+    renderPage();
+    expect(await screen.findByText("email queued")).toBeInTheDocument();
+    expect(screen.getByText("delivery failed — select to retry")).toBeInTheDocument();
+    expect(screen.queryByText("invited")).not.toBeInTheDocument();
+  });
+
+  it("fetches another subscriber page and clears selections from the previous page", async () => {
+    api.get.mockImplementation((url, options) => Promise.resolve({ data: url.includes("/stats") ? {
+      ...mockStatsWithSignups, totalSignups: 51,
+      pagination: { page: options.params.page, limit: 50, total: 51, totalPages: 2 },
+      signups: options.params.page === 2 ? [{ ...mockStatsWithSignups.signups[0], _id: "sub_51", email: "last@test.com", currentPosition: 51 }] : mockStatsWithSignups.signups,
+    } : mockFunnelData }));
+    renderPage();
+    fireEvent.click(await screen.findByLabelText("Select alice@test.com"));
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(await screen.findByLabelText("Select last@test.com")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /batch invite selected/i })).toBeDisabled();
+    expect(api.get).toHaveBeenCalledWith("/waitlists/waitlist123/stats", { params: { page: 2, limit: 50 } });
+  });
+
   it("allows inline position editing and submits PATCH request", async () => {
     api.get.mockImplementation((url) => {
       if (url.includes("/stats")) {

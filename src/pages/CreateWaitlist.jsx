@@ -7,17 +7,20 @@ export default function CreateWaitlist() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
+  const [upgradeRequired, setUpgradeRequired] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+    setUpgradeRequired(false);
     setLoading(true);
     try {
       await api.post("/waitlists", { name, description });
       navigate(`/dashboard`);
     } catch (err) {
+      setUpgradeRequired(Boolean(err.response?.data?.upgradeRequired));
       setError(err.response?.data?.error || "Something went wrong");
     } finally {
       setLoading(false);
@@ -57,6 +60,7 @@ export default function CreateWaitlist() {
           />
         </div>
         {error && <div className="lq-form-error-msg lq-form-error-spaced">{error}</div>}
+        {upgradeRequired && <Link to="/pricing">View plans to increase your campaign limit</Link>}
         <button type="submit" disabled={loading} className="lq-btn lq-btn-primary lq-form-btn-full">
           {loading ? "Creating..." : "Create waitlist →"}
         </button>

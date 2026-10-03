@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
 import StatCard from "../components/StatCard";
@@ -25,22 +25,33 @@ export default function WaitlistDetail() {
   const [posSaveLoading, setPosSaveLoading] = useState(false);
   const [inviteLoading, setInviteLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState("");
+  const [page, setPage] = useState(1);
+  const fetchVersion = useRef(0);
 
   const fetchData = useCallback(() => {
+    const version = ++fetchVersion.current;
     return Promise.all([
-      api.get(`/waitlists/${id}/stats`),
+      api.get(`/waitlists/${id}/stats`, { params: { page, limit: 50 } }),
       api.get(`/waitlists/${id}/funnel`),
     ])
       .then(([statsRes, funnelRes]) => {
+        if (version !== fetchVersion.current) return;
         setStats(statsRes.data);
         setFunnel(funnelRes.data);
       })
-      .catch((err) => setError(err.response?.data?.error || "Failed to load"));
-  }, [id]);
+      .catch((err) => { if (version === fetchVersion.current) setError(err.response?.data?.error || "Failed to load"); });
+  }, [id, page]);
 
   useEffect(() => {
     fetchData().finally(() => setLoading(false));
   }, [fetchData]);
+
+  const hasQueuedInvites = stats?.signups?.some((signup) => signup.invitationState === "queued");
+  useEffect(() => {
+    if (!hasQueuedInvites) return;
+    const timer = setInterval(() => { if (!document.hidden) fetchData(); }, 5000);
+    return () => clearInterval(timer);
+  }, [hasQueuedInvites, fetchData]);
 
   async function handleExport() {
     setExportError("");
@@ -69,7 +80,7 @@ export default function WaitlistDetail() {
   }
 
   function toggleSelectAll() {
-    const signups = stats?.signups || [];
+    const signups = (stats?.signups || []).filter((s) => s.verificationState !== "pending" && s.status !== "invited");
     if (selectedSignupIds.length === signups.length) {
       setSelectedSignupIds([]);
     } else {
@@ -122,7 +133,11 @@ export default function WaitlistDetail() {
       });
       setSelectedSignupIds([]);
       await fetchData();
-      setActionMessage(`Successfully invited ${res.data.invitedCount} subscriber(s)!`);
+      setActionMessage([
+        res.data.invitedCount ? `Delivered ${res.data.invitedCount} invitation(s).` : "",
+        res.data.queuedCount ? `Queued ${res.data.queuedCount} invitation(s). Delivery status updates automatically.` : "",
+        res.data.failedCount ? `${res.data.failedCount} delivery failure(s). Select the subscribers to retry.` : "",
+      ].filter(Boolean).join(" ") || "No new invitations to send.");
     } catch (err) {
       alert(err.response?.data?.error || "Failed to send invitations.");
     } finally {
@@ -135,7 +150,8 @@ export default function WaitlistDetail() {
 
   const signups = stats?.signups || [];
   const hasSignups = (stats?.totalSignups || 0) > 0;
-  const isAllSelected = signups.length > 0 && selectedSignupIds.length === signups.length;
+  const eligibleCount = signups.filter((s) => s.verificationState !== "pending" && s.status !== "invited").length;
+  const isAllSelected = eligibleCount > 0 && selectedSignupIds.length === eligibleCount;
 
   return (
     <div className="lq-detail-container">
@@ -157,8 +173,8 @@ export default function WaitlistDetail() {
       <div className="lq-detail-stats-grid">
         <StatCard label="Visitors" value={stats.totalVisitors || 0} />
         <StatCard label="Signups" value={stats.totalSignups || 0} />
-        <StatCard label="Conversion rate" value={`${stats.conversionRate !== undefined ? stats.conversionRate : 0}%`} />
-        <StatCard label="Signups today" value={stats.signupsToday || 0} />
+        <StatCard label="Signup/visitor ratio" value={`${stats.conversionRate !== undefined ? stats.conversionRate : 0}%`} />
+        <StatCard label="Signups today (UTC)" value={stats.signupsToday || 0} />
         <StatCard label="Referral rate" value={`${stats.referralRate || 0}%`} />
       </div>
 
@@ -168,7 +184,7 @@ export default function WaitlistDetail() {
         <StatCard label="Page Views" value={funnel?.totalPageViews || 0} />
         <StatCard label="Direct Signups" value={funnel?.directSignups || 0} />
         <StatCard label="Referred Signups" value={funnel?.referredSignups || 0} />
-        <StatCard label="Funnel Conversion" value={`${funnel?.conversionRate ?? 0}%`} />
+        <StatCard label="Verified signup/visitor ratio" value={`${funnel?.conversionRate ?? 0}%`} />
       </div>
 
       <FunnelChart funnel={funnel} />
@@ -187,7 +203,7 @@ export default function WaitlistDetail() {
       <div className="lq-table-card">
         <div className="lq-table-toolbar">
           <p className="lq-table-toolbar-title">
-            {signups.length} {signups.length === 1 ? "Subscriber" : "Subscribers"}
+            Showing {signups.length} of {stats.pagination?.total ?? stats.totalSignups} subscribers
           </p>
           <div>
             <button
@@ -231,6 +247,7 @@ export default function WaitlistDetail() {
                   const isEditing = editingPositionId === s._id;
                   const isChecked = selectedSignupIds.includes(s._id);
                   const isInvited = s.status === "invited";
+                  const isPending = s.verificationState === "pending";
 
                   return (
                     <tr key={s._id}>
@@ -238,6 +255,7 @@ export default function WaitlistDetail() {
                         <input
                           type="checkbox"
                           checked={isChecked}
+                          disabled={isPending || isInvited}
                           onChange={() => toggleSelectOne(s._id)}
                           aria-label={`Select ${s.email}`}
                         />
@@ -268,7 +286,7 @@ export default function WaitlistDetail() {
                             </button>
                           </div>
                         ) : (
-                          <span>#{s.currentPosition}</span>
+                          <span>{isPending ? "Pending" : `#${s.currentPosition}`}</span>
                         )}
                       </td>
                       <td>{s.email}</td>
@@ -279,11 +297,11 @@ export default function WaitlistDetail() {
                             isInvited ? "lq-badge-invited" : "lq-badge-waiting"
                           }`}
                         >
-                          {s.status || "waiting"}
+                          {isPending ? "email verification pending" : s.invitationState === "queued" ? "email queued" : s.invitationState === "failed" ? "delivery failed — select to retry" : s.status || "waiting"}
                         </span>
                       </td>
                       <td style={{ textAlign: "right" }}>
-                        {!isEditing && (
+                        {!isEditing && !isPending && (
                           <button
                             onClick={() => {
                               setEditingPositionId(s._id);
@@ -303,6 +321,14 @@ export default function WaitlistDetail() {
           </div>
         )}
       </div>
+
+      {stats.pagination && stats.pagination.totalPages > 1 && <nav aria-label="Subscriber pages" className="lq-table-toolbar">
+        <button className="lq-btn lq-btn-secondary" disabled={page <= 1 || stats.pagination.page !== page}
+          onClick={() => { setSelectedSignupIds([]); setPage((value) => value - 1); }}>Previous</button>
+        <span>Page {page} of {stats.pagination.totalPages}</span>
+        <button className="lq-btn lq-btn-secondary" disabled={page >= stats.pagination.totalPages || stats.pagination.page !== page}
+          onClick={() => { setSelectedSignupIds([]); setPage((value) => value + 1); }}>Next</button>
+      </nav>}
 
       {exportError && <p className="lq-form-error-msg" style={{ marginTop: 24 }}>{exportError}</p>}
 

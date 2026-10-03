@@ -109,10 +109,14 @@ export default function PersonalizedWaitlistCard({
   }
 
   async function handleRefreshRank() {
+    if (!signupData?.statusToken) {
+      setToastMessage("Request a new private status link to refresh your position.");
+      return;
+    }
     setRefreshing(true);
     try {
       const res = await api.get(`/w/${slug}/position`, {
-        params: { ref: refCode },
+        headers: { "X-Subscriber-Token": signupData?.statusToken || "" },
       });
       if (res.data && onUpdate) {
         onUpdate({

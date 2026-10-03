@@ -4,9 +4,9 @@ import api from "../api/axios";
 import HomeButton from "../components/HomeButton";
 
 const plans = [
-  { id: "starter", name: "Starter", price: "$19/mo", features: ["No badge", "CSV export", "5,000 signups"] },
-  { id: "pro", name: "Pro", price: "$49/mo", features: ["Custom domain", "25,000 signups", "Priority support"] },
-  { id: "agency", name: "Agency", price: "$99/mo", features: ["White-label", "Unlimited everything"] },
+  { id: "starter", name: "Starter", price: "$19/mo", features: ["3 campaigns", "CSV export", "5,000 signups per campaign"] },
+  { id: "pro", name: "Pro", price: "$49/mo", features: ["10 campaigns", "CSV export", "25,000 signups per campaign"] },
+  { id: "agency", name: "Agency", price: "$99/mo", features: ["Unlimited campaigns", "CSV export", "Unlimited signups"] },
 ];
 
 export default function Pricing() {
@@ -33,6 +33,7 @@ export default function Pricing() {
       </div>
 
       <h1 className="lq-pricing-header-title">Upgrade your plan</h1>
+      <p>Free includes one campaign and 500 signups. Every plan includes email verification and referral rewards. Final prices are confirmed at checkout.</p>
       <div className="lq-pricing-grid">
         {plans.map((p) => (
           <div key={p.id} className="lq-pricing-card">
