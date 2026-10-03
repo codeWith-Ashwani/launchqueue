@@ -7,6 +7,7 @@ import PersonalizedWaitlistCard from "../components/PersonalizedWaitlistCard";
 import CheckStatusModal from "../components/CheckStatusModal";
 import ReferrerLeaderboard from "../components/ReferrerLeaderboard";
 import LiveActivityFeed from "../components/LiveActivityFeed";
+import CampaignPage from "../components/CampaignPage";
 
 export default function WaitlistPage() {
   const { slug } = useParams();
@@ -132,10 +133,6 @@ export default function WaitlistPage() {
     );
   }
 
-  const headline = waitlist.heroHeadline || waitlist.name;
-  const subheadline = waitlist.heroSubheadline || waitlist.description;
-  const features = waitlist.features?.length ? waitlist.features : [];
-  const milestones = waitlist.milestones?.length ? waitlist.milestones : [];
 
   function handleSignupSuccess(data) {
     const enriched = {
@@ -157,167 +154,15 @@ export default function WaitlistPage() {
     localStorage.setItem(`lq_user_signup_${slug}`, JSON.stringify(updated));
   }
 
-  return (
-    <div style={{ background: "var(--color-white)", minHeight: "100vh" }}>
-      {/* Monochrome Navbar */}
-      <nav className="lq-navbar">
-        <div className="lq-container lq-navbar-inner">
-          <div className="lq-logo">
-            <div className="lq-logo-mark">
-              {waitlist.name.charAt(0).toUpperCase()}
-            </div>
-            <span>{waitlist.name}</span>
-          </div>
-
-          <div className="lq-nav-actions">
-            <Link to="/" className="lq-btn lq-btn-ghost" style={{ fontSize: "0.8125rem" }}>
-              Powered by LaunchQueue
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <header className="lq-hero">
-        <div className="lq-container">
-          <div className="lq-pill">
-            <span className="lq-pill-dot" />
-            <span>Official Early Access Queue</span>
-          </div>
-
-          <h1 className="lq-hero-title">{headline}</h1>
-
-          {subheadline && (
-            <p className="lq-hero-subtitle">{subheadline}</p>
-          )}
-
-          {statusError && <p role="alert">{statusError}</p>}
-          {/* Same-page personalized in-place view */}
-          <div style={{ maxWidth: 580, margin: "0 auto 32px" }}>
-            {signupData ? (
-              <PersonalizedWaitlistCard
-                signupData={signupData}
-                slug={slug}
-                onReset={handleReset}
-                onUpdate={handleUpdate}
-              />
-            ) : (
-              <div className="lq-join-box">
-                <SignupForm
-                  slug={slug}
-                  ctaText={waitlist.ctaText || "Join the Waitlist →"}
-                  onSuccess={handleSignupSuccess}
-                />
-                <div className="lq-join-helper">
-                  <span>{waitlist.totalSignups} subscribers in queue</span>
-                  <button
-                    type="button"
-                    onClick={() => setIsCheckModalOpen(true)}
-                    className="lq-text-link"
-                  >
-                    Check existing rank
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Live Activity Feed */}
-          <LiveActivityFeed slug={slug} />
-        </div>
-      </header>
-
-      {/* Features Grid if present */}
-      {features.length > 0 && (
-        <section className="lq-section" style={{ borderTop: "1px solid var(--color-border-gray)" }}>
-          <div className="lq-container">
-            <div className="lq-section-header">
-              <div className="lq-section-eyebrow">Product Overview</div>
-              <h2 className="lq-section-title">What to expect from {waitlist.name}</h2>
-            </div>
-
-            <div className="lq-grid-2x2">
-              {features.map((f, i) => (
-                <div key={i} className="lq-feature-item">
-                  <div className="lq-feature-icon">0{i + 1}</div>
-                  <h3 className="lq-feature-name">{f.title}</h3>
-                  <p className="lq-feature-text">{f.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Milestones if present */}
-      {milestones.length > 0 && (
-        <section className="lq-section" style={{ background: "var(--color-bg-subtle)", borderTop: "1px solid var(--color-border-gray)" }}>
-          <div className="lq-container" style={{ maxWidth: 720 }}>
-            <div className="lq-section-header" style={{ textAlign: "center", margin: "0 auto 48px" }}>
-              <div className="lq-section-eyebrow">Referral Rewards</div>
-              <h2 className="lq-section-title" style={{ fontSize: "2rem" }}>Invite friends to unlock perks</h2>
-              <p className="lq-section-desc">
-                Each friend who verifies their email adds a five-point priority boost. Your rank depends on the queue.
-              </p>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {milestones.map((m, idx) => (
-                <div key={idx} style={{ background: "var(--color-white)", border: "1px solid var(--color-border-gray)", borderRadius: "var(--radius-sm)", padding: "14px 18px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ fontWeight: 600, fontSize: "0.9375rem", color: "var(--color-black)" }}>{m.reward}</div>
-                  <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.8125rem", color: "var(--color-medium-gray)" }}>
-                    {m.referrals} {m.referrals === 1 ? "Referral" : "Referrals"}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Public Referrer Leaderboard Section */}
-      <section className="lq-section" style={{ borderTop: "1px solid var(--color-border-gray)" }}>
-        <div className="lq-container" style={{ maxWidth: 720 }}>
-          <div className="lq-section-header" style={{ textAlign: "center", margin: "0 auto 36px" }}>
-            <div className="lq-section-eyebrow">Top Referrers</div>
-            <h2 className="lq-section-title" style={{ fontSize: "2rem" }}>Referral Leaderboard</h2>
-            <p className="lq-section-desc">
-              Top community advocates climbing the queue by inviting friends.
-            </p>
-          </div>
-
-          <div style={{ background: "var(--color-white)", border: "1px solid var(--color-border-gray)", borderRadius: "var(--radius-md)", padding: 20, boxShadow: "var(--shadow-sm)" }}>
-            <ReferrerLeaderboard
-              referrers={leaderboard}
-              loading={leaderboardLoading}
-              error={leaderboardError}
-              isPublic={true}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Minimal Footer */}
-      <footer className="lq-footer">
-        <div className="lq-container lq-footer-inner">
-          <div>
-            © {new Date().getFullYear()} {waitlist.name}. Built with LaunchQueue.
-          </div>
-          <div>
-            <Link to="/" className="lq-btn lq-btn-secondary" style={{ fontSize: "0.75rem" }}>
-              Create your own waitlist →
-            </Link>
-          </div>
-        </div>
-      </footer>
-
-      {/* Check status modal */}
-      <CheckStatusModal
-        isOpen={isCheckModalOpen}
-        onClose={() => setIsCheckModalOpen(false)}
-        slug={slug}
-        onFound={handleSignupSuccess}
-      />
-    </div>
-  );
+  const signup = <>
+    {statusError && <p role="alert">{statusError}</p>}
+    {signupData ? <PersonalizedWaitlistCard signupData={signupData} slug={slug} onReset={handleReset} onUpdate={handleUpdate} /> : <>
+      {waitlist.paused ? <p>This campaign is currently paused. Check back for updates.</p> : <SignupForm slug={slug} ctaText={waitlist.ctaText || "Join the waitlist"} onSuccess={handleSignupSuccess} />}
+      <div className="lq-join-helper"><span>{waitlist.totalSignups} subscribers in queue</span><button type="button" className="lq-text-link" onClick={() => setIsCheckModalOpen(true)}>Check existing rank</button></div>
+    </>}
+  </>;
+  return <>
+    <CampaignPage campaign={waitlist} signup={signup} activity={<LiveActivityFeed slug={slug} />} leaderboard={<ReferrerLeaderboard referrers={leaderboard} loading={leaderboardLoading} error={leaderboardError} isPublic />} />
+    <CheckStatusModal isOpen={isCheckModalOpen} onClose={() => setIsCheckModalOpen(false)} slug={slug} onFound={handleSignupSuccess} />
+  </>;
 }

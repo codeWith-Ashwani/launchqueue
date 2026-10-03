@@ -38,13 +38,17 @@ export default function WaitlistDetail() {
         if (version !== fetchVersion.current) return;
         setStats(statsRes.data);
         setFunnel(funnelRes.data);
+        setError("");
       })
-      .catch((err) => { if (version === fetchVersion.current) setError(err.response?.data?.error || "Failed to load"); });
+      .catch((err) => { if (version === fetchVersion.current) setError(err.response?.data?.error || "Failed to load"); })
+      .finally(() => { if (version === fetchVersion.current) setLoading(false); });
   }, [id, page]);
 
+  const cancelFetch = useCallback(() => { fetchVersion.current++; }, []);
   useEffect(() => {
-    fetchData().finally(() => setLoading(false));
-  }, [fetchData]);
+    fetchData();
+    return cancelFetch;
+  }, [fetchData, cancelFetch]);
 
   const hasQueuedInvites = stats?.signups?.some((signup) => signup.invitationState === "queued");
   useEffect(() => {
