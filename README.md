@@ -238,6 +238,8 @@ Build 2 displays the backend's deterministic queue rank and actual positions gai
 
 ## Security & Session Handling
 
+Build 3 uses private status tokens, separate from public referral codes. Returning subscribers request an email link from the status modal. Opening the link consumes the URL fragment and saves the private token on that browser; rank refresh sends it in `X-Subscriber-Token`. Old sessions without a token require email recovery. These links are bearer credentials and should remain private.
+
 - **Cookie-Based Authentication**: Authentication credentials are exchanged via `httpOnly` secure cookies, protecting tokens from JavaScript access and mitigating cross-site scripting (XSS) token theft.
 - **Client Error Boundary**: A top-level React `ErrorBoundary` wraps the application tree, intercepting runtime rendering errors and presenting a graceful recovery view rather than a blank page.
 - **PII Masking**: Public endpoints and feeds mask subscriber email addresses before rendering (`a***e@example.com`).

@@ -102,4 +102,14 @@ describe("SignupForm Component", () => {
       });
     });
   });
+
+  it("shows recovery instructions without rendering another subscriber's card", async () => {
+    const onSuccess = vi.fn();
+    api.post.mockResolvedValueOnce({ data: { statusLinkSent: true, message: "Check your inbox." } });
+    render(<MemoryRouter><SignupForm slug="demo" onSuccess={onSuccess} /></MemoryRouter>);
+    fireEvent.change(screen.getByPlaceholderText("name@company.com"), { target: { value: "user@example.com" } });
+    fireEvent.click(screen.getByRole("button", { name: /Join the Waitlist/i }));
+    expect(await screen.findByRole("status")).toHaveTextContent("Check your inbox");
+    expect(onSuccess).not.toHaveBeenCalled();
+  });
 });
