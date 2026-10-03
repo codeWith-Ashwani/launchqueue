@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { useWaitlist } from "../hooks/useWaitlist";
 import api from "../api/axios";
@@ -14,6 +14,8 @@ export default function WaitlistPage() {
   const [statusError, setStatusError] = useState("");
   const [signupData, setSignupData] = useState(null);
   const [statusTokenFromLink] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get("status"));
+  const [verificationTokenFromLink] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get("verify"));
+  const privateRequest = useRef(null);
   const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
@@ -26,14 +28,18 @@ export default function WaitlistPage() {
   useEffect(() => {
     let active = true;
     const privateToken = statusTokenFromLink;
-    if (privateToken) {
+    if (privateToken || verificationTokenFromLink) {
       window.history.replaceState(null, "", window.location.pathname + window.location.search);
-      api.get(`/w/${slug}/position`, { headers: { "X-Subscriber-Token": privateToken } })
+      const key = `${slug}:${verificationTokenFromLink || privateToken}`;
+      if (privateRequest.current?.key !== key) privateRequest.current = { key, promise: verificationTokenFromLink
+        ? api.post(`/w/${slug}/verify`, { token: verificationTokenFromLink })
+        : api.get(`/w/${slug}/position`, { headers: { "X-Subscriber-Token": privateToken } }) };
+      privateRequest.current.promise
         .then((res) => {
           if (!active) return;
           setSignupData(res.data);
           localStorage.setItem(`lq_user_signup_${slug}`, JSON.stringify(res.data));
-        }).catch(() => { if (active) setStatusError("This private link is invalid or expired. Request a new status link."); });
+        }).catch(() => { if (active) setStatusError("This private link is invalid or expired. Request a new link using Check existing rank."); });
       return () => { active = false; };
     }
     try {
@@ -56,7 +62,7 @@ export default function WaitlistPage() {
     } catch {
       // ignore
     }
-  }, [slug, refFromUrl, statusTokenFromLink]);
+  }, [slug, refFromUrl, statusTokenFromLink, verificationTokenFromLink]);
 
   // Fetch public leaderboard
   useEffect(() => {
@@ -235,7 +241,7 @@ export default function WaitlistPage() {
               <div className="lq-section-eyebrow">Referral Rewards</div>
               <h2 className="lq-section-title" style={{ fontSize: "2rem" }}>Invite friends to unlock perks</h2>
               <p className="lq-section-desc">
-                Every friend who joins using your invite link jumps you 5 spots ahead.
+                Each friend who verifies their email adds a five-point priority boost. Your rank depends on the queue.
               </p>
             </div>
 

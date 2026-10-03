@@ -76,7 +76,7 @@ export default function WaitlistDetail() {
   }
 
   function toggleSelectAll() {
-    const signups = stats?.signups || [];
+    const signups = (stats?.signups || []).filter((s) => s.verificationState !== "pending" && s.status !== "invited");
     if (selectedSignupIds.length === signups.length) {
       setSelectedSignupIds([]);
     } else {
@@ -146,7 +146,8 @@ export default function WaitlistDetail() {
 
   const signups = stats?.signups || [];
   const hasSignups = (stats?.totalSignups || 0) > 0;
-  const isAllSelected = signups.length > 0 && selectedSignupIds.length === signups.length;
+  const eligibleCount = signups.filter((s) => s.verificationState !== "pending" && s.status !== "invited").length;
+  const isAllSelected = eligibleCount > 0 && selectedSignupIds.length === eligibleCount;
 
   return (
     <div className="lq-detail-container">
@@ -242,6 +243,7 @@ export default function WaitlistDetail() {
                   const isEditing = editingPositionId === s._id;
                   const isChecked = selectedSignupIds.includes(s._id);
                   const isInvited = s.status === "invited";
+                  const isPending = s.verificationState === "pending";
 
                   return (
                     <tr key={s._id}>
@@ -249,6 +251,7 @@ export default function WaitlistDetail() {
                         <input
                           type="checkbox"
                           checked={isChecked}
+                          disabled={isPending || isInvited}
                           onChange={() => toggleSelectOne(s._id)}
                           aria-label={`Select ${s.email}`}
                         />
@@ -279,7 +282,7 @@ export default function WaitlistDetail() {
                             </button>
                           </div>
                         ) : (
-                          <span>#{s.currentPosition}</span>
+                          <span>{isPending ? "Pending" : `#${s.currentPosition}`}</span>
                         )}
                       </td>
                       <td>{s.email}</td>
@@ -290,11 +293,11 @@ export default function WaitlistDetail() {
                             isInvited ? "lq-badge-invited" : "lq-badge-waiting"
                           }`}
                         >
-                          {s.invitationState === "queued" ? "email queued" : s.invitationState === "failed" ? "delivery failed — select to retry" : s.status || "waiting"}
+                          {isPending ? "email verification pending" : s.invitationState === "queued" ? "email queued" : s.invitationState === "failed" ? "delivery failed — select to retry" : s.status || "waiting"}
                         </span>
                       </td>
                       <td style={{ textAlign: "right" }}>
-                        {!isEditing && (
+                        {!isEditing && !isPending && (
                           <button
                             onClick={() => {
                               setEditingPositionId(s._id);
