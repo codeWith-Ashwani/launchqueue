@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
 import StatCard from "../components/StatCard";
@@ -25,18 +25,22 @@ export default function WaitlistDetail() {
   const [posSaveLoading, setPosSaveLoading] = useState(false);
   const [inviteLoading, setInviteLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState("");
+  const [page, setPage] = useState(1);
+  const fetchVersion = useRef(0);
 
   const fetchData = useCallback(() => {
+    const version = ++fetchVersion.current;
     return Promise.all([
-      api.get(`/waitlists/${id}/stats`),
+      api.get(`/waitlists/${id}/stats`, { params: { page, limit: 50 } }),
       api.get(`/waitlists/${id}/funnel`),
     ])
       .then(([statsRes, funnelRes]) => {
+        if (version !== fetchVersion.current) return;
         setStats(statsRes.data);
         setFunnel(funnelRes.data);
       })
-      .catch((err) => setError(err.response?.data?.error || "Failed to load"));
-  }, [id]);
+      .catch((err) => { if (version === fetchVersion.current) setError(err.response?.data?.error || "Failed to load"); });
+  }, [id, page]);
 
   useEffect(() => {
     fetchData().finally(() => setLoading(false));
@@ -169,8 +173,8 @@ export default function WaitlistDetail() {
       <div className="lq-detail-stats-grid">
         <StatCard label="Visitors" value={stats.totalVisitors || 0} />
         <StatCard label="Signups" value={stats.totalSignups || 0} />
-        <StatCard label="Conversion rate" value={`${stats.conversionRate !== undefined ? stats.conversionRate : 0}%`} />
-        <StatCard label="Signups today" value={stats.signupsToday || 0} />
+        <StatCard label="Signup/visitor ratio" value={`${stats.conversionRate !== undefined ? stats.conversionRate : 0}%`} />
+        <StatCard label="Signups today (UTC)" value={stats.signupsToday || 0} />
         <StatCard label="Referral rate" value={`${stats.referralRate || 0}%`} />
       </div>
 
@@ -180,7 +184,7 @@ export default function WaitlistDetail() {
         <StatCard label="Page Views" value={funnel?.totalPageViews || 0} />
         <StatCard label="Direct Signups" value={funnel?.directSignups || 0} />
         <StatCard label="Referred Signups" value={funnel?.referredSignups || 0} />
-        <StatCard label="Funnel Conversion" value={`${funnel?.conversionRate ?? 0}%`} />
+        <StatCard label="Verified signup/visitor ratio" value={`${funnel?.conversionRate ?? 0}%`} />
       </div>
 
       <FunnelChart funnel={funnel} />
@@ -199,7 +203,7 @@ export default function WaitlistDetail() {
       <div className="lq-table-card">
         <div className="lq-table-toolbar">
           <p className="lq-table-toolbar-title">
-            {signups.length} {signups.length === 1 ? "Subscriber" : "Subscribers"}
+            Showing {signups.length} of {stats.pagination?.total ?? stats.totalSignups} subscribers
           </p>
           <div>
             <button
@@ -317,6 +321,14 @@ export default function WaitlistDetail() {
           </div>
         )}
       </div>
+
+      {stats.pagination && stats.pagination.totalPages > 1 && <nav aria-label="Subscriber pages" className="lq-table-toolbar">
+        <button className="lq-btn lq-btn-secondary" disabled={page <= 1 || stats.pagination.page !== page}
+          onClick={() => { setSelectedSignupIds([]); setPage((value) => value - 1); }}>Previous</button>
+        <span>Page {page} of {stats.pagination.totalPages}</span>
+        <button className="lq-btn lq-btn-secondary" disabled={page >= stats.pagination.totalPages || stats.pagination.page !== page}
+          onClick={() => { setSelectedSignupIds([]); setPage((value) => value + 1); }}>Next</button>
+      </nav>}
 
       {exportError && <p className="lq-form-error-msg" style={{ marginTop: 24 }}>{exportError}</p>}
 
