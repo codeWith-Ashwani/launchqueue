@@ -13,8 +13,12 @@ export default function WaitlistPage() {
   const { waitlist, loading, error } = useWaitlist(slug);
   const [statusError, setStatusError] = useState("");
   const [signupData, setSignupData] = useState(null);
-  const [statusTokenFromLink] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get("status"));
-  const [verificationTokenFromLink] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get("verify"));
+  const [privateLink, setPrivateLink] = useState(() => {
+    const params = new URLSearchParams(window.location.hash.slice(1));
+    return { status: params.get("status"), verify: params.get("verify"), revision: 0 };
+  });
+  const statusTokenFromLink = privateLink.status;
+  const verificationTokenFromLink = privateLink.verify;
   const privateRequest = useRef(null);
   const [isCheckModalOpen, setIsCheckModalOpen] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
@@ -23,6 +27,17 @@ export default function WaitlistPage() {
 
   const [searchParams] = useSearchParams();
   const refFromUrl = searchParams.get("ref");
+
+  useEffect(() => {
+    const receiveLink = () => {
+      const params = new URLSearchParams(window.location.hash.slice(1));
+      if (params.has("status") || params.has("verify")) setPrivateLink((previous) => ({
+        status: params.get("status"), verify: params.get("verify"), revision: previous.revision + 1,
+      }));
+    };
+    window.addEventListener("hashchange", receiveLink);
+    return () => window.removeEventListener("hashchange", receiveLink);
+  }, []);
 
   // Restore saved session for this waitlist
   useEffect(() => {
@@ -37,6 +52,7 @@ export default function WaitlistPage() {
       privateRequest.current.promise
         .then((res) => {
           if (!active) return;
+          setStatusError("");
           setSignupData(res.data);
           localStorage.setItem(`lq_user_signup_${slug}`, JSON.stringify(res.data));
         }).catch(() => { if (active) setStatusError("This private link is invalid or expired. Request a new link using Check existing rank."); });
@@ -47,7 +63,7 @@ export default function WaitlistPage() {
       const saved = savedStr ? JSON.parse(savedStr) : null;
 
       if (refFromUrl) {
-        sessionStorage.setItem("lq_active_ref_code", refFromUrl);
+        sessionStorage.setItem(`lq_active_ref_code_${slug}`, refFromUrl);
         // If there's an existing saved session, only keep it if it is this user's own completed signup (own refCode !== the referrer's refCode)
         if (saved && saved.statusToken && saved.refCode && saved.refCode !== refFromUrl && saved.email) {
           setSignupData(saved);
@@ -62,7 +78,7 @@ export default function WaitlistPage() {
     } catch {
       // ignore
     }
-  }, [slug, refFromUrl, statusTokenFromLink, verificationTokenFromLink]);
+  }, [slug, refFromUrl, statusTokenFromLink, verificationTokenFromLink, privateLink.revision]);
 
   // Fetch public leaderboard
   useEffect(() => {

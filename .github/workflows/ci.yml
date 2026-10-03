@@ -31,3 +31,34 @@ jobs:
 
       - name: Build production frontend
         run: npm run build
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Check out the verified backend fixture
+        uses: actions/checkout@v4
+        with:
+          repository: codeWith-Ashwani/launchqueue-backend
+          ref: 8fec1a4b4e48c0d8f9aa1a273c5135b6a442afcc
+          path: .e2e-backend
+
+      - name: Install backend fixture dependencies
+        run: npm ci --prefix .e2e-backend/server
+
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser flows
+        run: npm run test:e2e
+        env:
+          LAUNCHQUEUE_BACKEND_DIR: ${{ github.workspace }}/.e2e-backend/server
+
+      - name: Save failed browser traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-failure-traces
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore

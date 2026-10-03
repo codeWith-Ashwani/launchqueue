@@ -4,7 +4,7 @@ import ShareModal from "./ShareModal";
 
 const defaultMilestones = [
   { referrals: 1, reward: "Move Up Queue (Priority Placement)" },
-  { referrals: 3, reward: "Bigger Position Boost (+15 Spots)" },
+  { referrals: 3, reward: "15-point priority boost" },
   { referrals: 5, reward: "Early Product Beta Access" },
   { referrals: 10, reward: "VIP Founder Circle Perks" },
 ];
@@ -33,10 +33,7 @@ export default function PersonalizedWaitlistCard({
 
   // Share URL
   const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const isCustomSlug = slug && slug !== "launchqueue";
-  const shareUrl = isCustomSlug
-    ? `${origin}/w/${slug}?ref=${refCode}`
-    : `${origin}/?ref=${refCode}`;
+  const shareUrl = `${origin}/w/${slug}?ref=${refCode}`;
 
   const milestones = useMemo(() => {
     const list = signupData?.milestones?.length ? signupData.milestones : defaultMilestones;
@@ -201,7 +198,7 @@ export default function PersonalizedWaitlistCard({
       <div className="lq-code-container">
         <div className="lq-code-header">
           <span className="lq-code-header-label">Your Referral Code</span>
-          <span style={{ fontSize: "0.6875rem", color: "var(--color-medium-gray)" }}>+5 spots per invite</span>
+          <span style={{ fontSize: "0.6875rem", color: "var(--color-medium-gray)" }}>+5 priority points per verified referral</span>
         </div>
 
         <div className="lq-code-row">

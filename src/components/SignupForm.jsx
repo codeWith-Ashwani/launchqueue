@@ -13,18 +13,19 @@ export default function SignupForm({
   const [loading, setLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const [activeRef, setActiveRef] = useState("");
+  const refStorageKey = `lq_active_ref_code_${slug}`;
 
   useEffect(() => {
     const urlRef = searchParams.get("ref");
     if (urlRef) {
-      sessionStorage.setItem("lq_active_ref_code", urlRef);
-      localStorage.setItem("lq_active_ref_code", urlRef);
+      sessionStorage.setItem(refStorageKey, urlRef);
+      localStorage.setItem(refStorageKey, urlRef);
       setActiveRef(urlRef);
     } else {
-      const stored = sessionStorage.getItem("lq_active_ref_code") || localStorage.getItem("lq_active_ref_code") || "";
+      const stored = sessionStorage.getItem(refStorageKey) || localStorage.getItem(refStorageKey) || "";
       if (stored) setActiveRef(stored);
     }
-  }, [searchParams]);
+  }, [searchParams, refStorageKey]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -36,15 +37,15 @@ export default function SignupForm({
     setError("");
     setLoading(true);
     try {
-      const refToSend = activeRef || searchParams.get("ref") || sessionStorage.getItem("lq_active_ref_code") || localStorage.getItem("lq_active_ref_code") || undefined;
+      const refToSend = activeRef || searchParams.get("ref") || sessionStorage.getItem(refStorageKey) || localStorage.getItem(refStorageKey) || undefined;
       const res = await api.post(`/w/${slug}/signup`, {
         email: email.trim().toLowerCase(),
         ref: refToSend,
       });
 
       // Clear the temporary active ref code from session once signed up
-      sessionStorage.removeItem("lq_active_ref_code");
-      localStorage.removeItem("lq_active_ref_code");
+      sessionStorage.removeItem(refStorageKey);
+      localStorage.removeItem(refStorageKey);
 
       if (res.data.statusLinkSent) {
         setMessage(res.data.message);

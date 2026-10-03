@@ -35,3 +35,8 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# Browser test output
+test-results/
+playwright-report/
+.e2e-backend/

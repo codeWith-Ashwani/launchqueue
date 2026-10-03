@@ -1,0 +1,52 @@
+import { test, expect } from "@playwright/test";
+const backend = "http://127.0.0.1:5051";
+test.beforeEach(async ({ request }) => { expect((await request.post(`${backend}/__demo/reset`)).ok()).toBe(true); });
+async function emailLink(request, to, marker) {
+  const response = await request.get(`${backend}/__demo/inbox`, { params: { to } });
+  const { emails } = await response.json();
+  const message = emails.find((email) => email.html.includes(marker));
+  expect(message).toBeTruthy();
+  return message.html.match(/href="([^"]+)"/)[1].replaceAll("&amp;", "&");
+}
+test("subscriber verifies, earns one referral credit and recovers private status", async ({ page, request }) => {
+  await page.goto("/w/interview-demo?ref=DEMO0");
+  await page.getByPlaceholder("name@company.com").fill("browser@example.com");
+  await page.getByRole("button", { name: /join the waitlist/i }).click();
+  await expect(page.getByRole("status")).toContainText("Check your inbox");
+  await expect(page.getByText("browser@example.com", { exact: true })).toHaveCount(0);
+  const link = await emailLink(request, "browser@example.com", "#verify=");
+  await page.goto(link);
+  await expect(page.getByText("browser@example.com", { exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/w\/interview-demo$/);
+  await page.goto(link);
+  await expect(page.getByText("browser@example.com", { exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/w\/interview-demo$/);
+  const leaderboard = await (await request.get(`${backend}/api/w/interview-demo/leaderboard`)).json();
+  expect(leaderboard.leaderboard[0].referralCount).toBe(1);
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  await page.getByRole("button", { name: "Check existing rank" }).click();
+  await page.locator(".lq-modal-dialog").getByPlaceholder("name@company.com").fill("browser@example.com");
+  await page.getByRole("button", { name: /email my status link/i }).click();
+  await expect(page.locator(".lq-modal-dialog").getByRole("status")).toContainText("Check your inbox");
+  const statusLink = await emailLink(request, "browser@example.com", "#status=");
+  await page.goto(statusLink);
+  await expect(page.getByText("browser@example.com", { exact: true })).toBeVisible();
+});
+test("founder logs in, pages subscribers, invites and downloads CSV", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByPlaceholder("founder@company.com").fill("demo@example.com");
+  await page.locator('input[type="password"]').fill("DemoPassword123!");
+  await page.getByRole("button", { name: /log in to dashboard/i }).click();
+  await page.getByRole("link", { name: /Interview Demo/ }).click();
+  await expect(page.getByText("Showing 50 of 120 subscribers")).toBeVisible();
+  await page.getByRole("button", { name: "Next" }).click();
+  await expect(page.getByText("Page 2 of 3")).toBeVisible();
+  await page.getByLabel("Select subscriber50@example.com").check();
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: /batch invite selected/i }).click();
+  await expect(page.getByText("Delivered 1 invitation(s).")).toBeVisible();
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: /export signups as csv/i }).click();
+  expect((await download).suggestedFilename()).toBe("interview-demo-signups.csv");
+});
