@@ -228,6 +228,8 @@ The frontend implements a custom monochrome design system in `src/index.css` usi
 
 ## State Management & Data Flow
 
+Build 2 displays the backend's deterministic queue rank and actual positions gained. Five referral priority points do not always equal five places gained, particularly near the front of the queue. Manual position moves now reorder neighbouring ranks.
+
 1. **Authentication State**: Managed globally by `AuthContext`. On application load, `GET /api/auth/me` verifies whether the browser holds an active `httpOnly` authentication cookie and populates the `founder` state.
 2. **Referral State Persistence**: When a user visits `/w/:slug?ref=ABC123`, the referral code is extracted and stored in `sessionStorage` and `localStorage` so that navigation across the site preserves referral credit.
 3. **Optimistic & Synchronous Settings Preview**: In `WaitlistSettings.jsx`, the right-hand column renders an interactive waitlist card directly from the component's local state, allowing founders to preview changes instantly before committing them via `PATCH /api/waitlists/:id`.

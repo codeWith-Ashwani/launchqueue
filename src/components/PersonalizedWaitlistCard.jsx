@@ -27,7 +27,7 @@ export default function PersonalizedWaitlistCard({
 
   // Calculate positions gained (base - current or explicit)
   const explicitGain = signupData?.positionsGained !== undefined ? signupData.positionsGained : 0;
-  const positionsGained = Math.max(explicitGain, Math.max(0, basePosition - position), referralCount * 5);
+  const positionsGained = Math.max(0, signupData?.positionsGained !== undefined ? explicitGain : basePosition - position);
 
   const refCode = signupData?.refCode || "ABC123";
 
