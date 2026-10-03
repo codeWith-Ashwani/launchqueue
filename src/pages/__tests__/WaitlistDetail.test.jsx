@@ -142,6 +142,19 @@ describe("WaitlistDetail Page - CSV Export, Admin Controls & Funnel Analytics", 
     expect(exportBtn).toBeDisabled();
   });
 
+  it("shows queued delivery separately from failed delivery and invitation access", async () => {
+    api.get.mockImplementation((url) => Promise.resolve({ data: url.includes("/stats") ? {
+      ...mockStatsWithSignups,
+      signups: mockStatsWithSignups.signups.map((signup, index) => ({
+        ...signup, status: "waiting", invitationState: index ? "failed" : "queued",
+      })),
+    } : mockFunnelData }));
+    renderPage();
+    expect(await screen.findByText("email queued")).toBeInTheDocument();
+    expect(screen.getByText("delivery failed — select to retry")).toBeInTheDocument();
+    expect(screen.queryByText("invited")).not.toBeInTheDocument();
+  });
+
   it("allows inline position editing and submits PATCH request", async () => {
     api.get.mockImplementation((url) => {
       if (url.includes("/stats")) {

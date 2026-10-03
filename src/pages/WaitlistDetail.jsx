@@ -42,6 +42,13 @@ export default function WaitlistDetail() {
     fetchData().finally(() => setLoading(false));
   }, [fetchData]);
 
+  const hasQueuedInvites = stats?.signups?.some((signup) => signup.invitationState === "queued");
+  useEffect(() => {
+    if (!hasQueuedInvites) return;
+    const timer = setInterval(() => { if (!document.hidden) fetchData(); }, 5000);
+    return () => clearInterval(timer);
+  }, [hasQueuedInvites, fetchData]);
+
   async function handleExport() {
     setExportError("");
     setExportLoading(true);
@@ -122,7 +129,11 @@ export default function WaitlistDetail() {
       });
       setSelectedSignupIds([]);
       await fetchData();
-      setActionMessage(`Successfully invited ${res.data.invitedCount} subscriber(s)!`);
+      setActionMessage([
+        res.data.invitedCount ? `Delivered ${res.data.invitedCount} invitation(s).` : "",
+        res.data.queuedCount ? `Queued ${res.data.queuedCount} invitation(s). Delivery status updates automatically.` : "",
+        res.data.failedCount ? `${res.data.failedCount} delivery failure(s). Select the subscribers to retry.` : "",
+      ].filter(Boolean).join(" ") || "No new invitations to send.");
     } catch (err) {
       alert(err.response?.data?.error || "Failed to send invitations.");
     } finally {
@@ -279,7 +290,7 @@ export default function WaitlistDetail() {
                             isInvited ? "lq-badge-invited" : "lq-badge-waiting"
                           }`}
                         >
-                          {s.status || "waiting"}
+                          {s.invitationState === "queued" ? "email queued" : s.invitationState === "failed" ? "delivery failed — select to retry" : s.status || "waiting"}
                         </span>
                       </td>
                       <td style={{ textAlign: "right" }}>
