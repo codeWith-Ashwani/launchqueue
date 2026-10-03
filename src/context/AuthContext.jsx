@@ -1,7 +1,6 @@
-import { createContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import api from "../api/axios";
-
-export const AuthContext = createContext();
+import { AuthContext } from "./auth-context";
 
 export function AuthProvider({ children }) {
   const [founder, setFounder] = useState(null);

@@ -47,6 +47,12 @@ describe("PersonalizedWaitlistCard Component", () => {
     expect(screen.getByText(/2 more referrals needed/i)).toBeInTheDocument();
   });
 
+  it("does not invent rank gains when the subscriber is already first", () => {
+    render(<PersonalizedWaitlistCard signupData={{ ...mockSignupData, position: 1, basePosition: 1, positionsGained: 0 }} />);
+    expect(screen.getByText("+0 places")).toBeInTheDocument();
+    expect(screen.queryByText(/places gained/)).not.toBeInTheDocument();
+  });
+
   it("marks unlocked milestones with checkmark and locked milestones with circle", () => {
     render(<PersonalizedWaitlistCard signupData={mockSignupData} slug="saas-alpha" />);
 

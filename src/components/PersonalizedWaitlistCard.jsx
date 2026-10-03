@@ -2,6 +2,13 @@ import { useState, useMemo } from "react";
 import api from "../api/axios";
 import ShareModal from "./ShareModal";
 
+const defaultMilestones = [
+  { referrals: 1, reward: "Move Up Queue (Priority Placement)" },
+  { referrals: 3, reward: "Bigger Position Boost (+15 Spots)" },
+  { referrals: 5, reward: "Early Product Beta Access" },
+  { referrals: 10, reward: "VIP Founder Circle Perks" },
+];
+
 export default function PersonalizedWaitlistCard({
   signupData,
   slug = "launchqueue",
@@ -20,7 +27,7 @@ export default function PersonalizedWaitlistCard({
 
   // Calculate positions gained (base - current or explicit)
   const explicitGain = signupData?.positionsGained !== undefined ? signupData.positionsGained : 0;
-  const positionsGained = Math.max(explicitGain, Math.max(0, basePosition - position), referralCount * 5);
+  const positionsGained = Math.max(0, signupData?.positionsGained !== undefined ? explicitGain : basePosition - position);
 
   const refCode = signupData?.refCode || "ABC123";
 
@@ -30,14 +37,6 @@ export default function PersonalizedWaitlistCard({
   const shareUrl = isCustomSlug
     ? `${origin}/w/${slug}?ref=${refCode}`
     : `${origin}/?ref=${refCode}`;
-
-  // Default monochrome milestone ladder
-  const defaultMilestones = [
-    { referrals: 1, reward: "Move Up Queue (Priority Placement)" },
-    { referrals: 3, reward: "Bigger Position Boost (+15 Spots)" },
-    { referrals: 5, reward: "Early Product Beta Access" },
-    { referrals: 10, reward: "VIP Founder Circle Perks" },
-  ];
 
   const milestones = useMemo(() => {
     const list = signupData?.milestones?.length ? signupData.milestones : defaultMilestones;

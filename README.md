@@ -2,11 +2,12 @@
 
 [![CI](https://github.com/codeWith-Ashwani/launchqueue/actions/workflows/ci.yml/badge.svg)](https://github.com/codeWith-Ashwani/launchqueue/actions/workflows/ci.yml)
 [![Stack: React 19 + Vite](https://img.shields.io/badge/Stack-React%2019%20%7C%20Vite-111111?style=flat-square)](https://react.dev)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
 LaunchQueue is a full-stack SaaS platform designed for early-stage founders to run viral pre-launch waitlists. When visitors join a waitlist, they receive a live queue position and a unique referral link. Sharing that link moves them forward in line and unlocks tiered milestone rewards.
 
 This repository contains the client-side single-page application (SPA) built with React 19, Vite, and React Router 7.
+
+[Live demo](https://launchqueue-omega.vercel.app/) · [Backend repository](https://github.com/codeWith-Ashwani/launchqueue-backend)
 
 ---
 
@@ -51,7 +52,7 @@ The frontend serves two primary user roles:
 - **KPI Metrics Cards**: Real-time display of total visitors, total signups, overall conversion rate, signups today, and referral rate.
 - **Signup Trajectory Chart**: 30-day historical time-series line chart rendered using Recharts.
 - **Conversion Funnel Visualization**: Stage-by-stage bar chart analyzing `Page Views → Total Signups → Direct Signups → Referred Signups` with zero-division protection.
-- **CSV Data Export**: One-click download of all subscribers (email, position, referral count, join date) formatted per RFC 4180 (gated to paid subscription tiers).
+- **CSV Data Export**: One-click download of all subscribers (email, position, referral count, join date) formatted per RFC 4180 (campaign owner only; paid-plan enforcement is planned).
 
 ### Admin Controls & Access Management
 - **Subscriber Roster**: Complete table of all subscribers sorted by queue rank.
@@ -68,7 +69,7 @@ The frontend serves two primary user roles:
 - **Live Activity Feed (`LiveActivityFeed`)**: Periodically polled ticker showing recent signups with relative timestamps.
 
 ### Founder Profile & Subscription Management
-- **Founder Profile (`/dashboard/profile`)**: Update name and email address, change password, and view current subscription plan tier.
+- **Founder Profile (`/profile`)**: Update name and email address, change password, and view current subscription plan tier.
 - **Pricing & Checkout (`/pricing`)**: Tier comparison (Free, Starter, Pro, Agency) integrated with Lemon Squeezy hosted checkout sessions.
 - **Customer Billing Portal**: Direct link for subscribed founders to manage invoices, payment methods, and plan cancellations.
 
@@ -82,10 +83,8 @@ The frontend serves two primary user roles:
 | **Build Tool & Bundler** | Vite 8 | Development server with Hot Module Replacement (HMR) and optimized rollup production builds |
 | **Routing** | React Router 7 | Client-side declarative routing and protected route wrappers |
 | **HTTP Client** | Axios 1.x | Configured API client with `withCredentials: true` for cookie exchange |
-| **Data Visualization** | Recharts 2.x | SVG-based responsive line and bar charts |
+| **Data Visualization** | Recharts 3.x | SVG-based responsive line and bar charts |
 | **Authentication** | Google Identity Services (GSI) | Google Sign-In SDK integration |
-| **Visual Effects** | Canvas Confetti | Celebration confetti on waitlist signup and milestone completion |
-| **Icons** | Lucide React | Clean icon primitives for UI actions |
 | **Testing** | Vitest & React Testing Library | Unit and component integration testing in jsdom environment |
 | **Styling** | Custom Pure CSS Tokens | Monochrome SaaS design system in `src/index.css` |
 
@@ -106,7 +105,7 @@ flowchart TD
     subgraph RouteGuards ["Routing Layer"]
         PUB[Public Routes: /, /login, /register, /pricing, /w/:slug]
         PROT[ProtectedRoute Guard]
-        DASH_ROUTES[Protected Routes: /dashboard, /dashboard/:id, /dashboard/profile]
+        DASH_ROUTES[Protected Routes: /dashboard, /dashboard/:id, /profile]
     end
 
     subgraph Views ["Page Layer"]
@@ -163,7 +162,6 @@ client/
 │   │   └── axios.js                 # Axios instance (baseURL, credentials: true)
 │   ├── components/
 │   │   ├── __tests__/               # Component unit tests
-│   │   │   ├── ErrorBoundary.test.jsx
 │   │   │   ├── GoogleSignInButton.test.jsx
 │   │   │   └── SignupForm.test.jsx
 │   │   ├── CheckStatusModal.jsx     # Rank & referral lookup dialog
@@ -174,7 +172,6 @@ client/
 │   │   ├── LiveActivityFeed.jsx     # Polled real-time signup ticker
 │   │   ├── PersonalizedWaitlistCard.jsx # Queue position & referral stats
 │   │   ├── ProtectedRoute.jsx       # Route guard redirecting unauthenticated users
-│   │   ├── ReferralRewardCard.jsx   # Reward milestone progress card
 │   │   ├── ReferrerLeaderboard.jsx  # Top referrers leaderboard
 │   │   ├── ShareModal.jsx           # Social sharing and link copy dialog
 │   │   ├── SignupForm.jsx           # Public waitlist join input
@@ -188,8 +185,6 @@ client/
 │   ├── pages/
 │   │   ├── __tests__/               # Page integration tests
 │   │   │   ├── ForgotPassword.test.jsx
-│   │   │   ├── Login.test.jsx
-│   │   │   ├── Pricing.test.jsx
 │   │   │   ├── Profile.test.jsx
 │   │   │   ├── ResetPassword.test.jsx
 │   │   │   └── WaitlistDetail.test.jsx
@@ -233,6 +228,8 @@ The frontend implements a custom monochrome design system in `src/index.css` usi
 
 ## State Management & Data Flow
 
+Build 2 displays the backend's deterministic queue rank and actual positions gained. Five referral priority points do not always equal five places gained, particularly near the front of the queue. Manual position moves now reorder neighbouring ranks.
+
 1. **Authentication State**: Managed globally by `AuthContext`. On application load, `GET /api/auth/me` verifies whether the browser holds an active `httpOnly` authentication cookie and populates the `founder` state.
 2. **Referral State Persistence**: When a user visits `/w/:slug?ref=ABC123`, the referral code is extracted and stored in `sessionStorage` and `localStorage` so that navigation across the site preserves referral credit.
 3. **Optimistic & Synchronous Settings Preview**: In `WaitlistSettings.jsx`, the right-hand column renders an interactive waitlist card directly from the component's local state, allowing founders to preview changes instantly before committing them via `PATCH /api/waitlists/:id`.
@@ -249,6 +246,8 @@ The frontend implements a custom monochrome design system in `src/index.css` usi
 
 ## Testing
 
+Build 1 verified 9 suites and 31 tests. CI runs lint, tests, and the production build on Node.js 22.
+
 The frontend uses **Vitest** and **React Testing Library** for automated testing.
 
 ```bash
@@ -256,7 +255,7 @@ The frontend uses **Vitest** and **React Testing Library** for automated testing
 npm test
 
 # Run tests in watch mode
-npm run test:watch
+npm test -- --watch
 
 # Run linter
 npm run lint
@@ -265,9 +264,9 @@ npm run lint
 ### Test Coverage Highlights
 - `GoogleSignInButton.test.jsx`: Tests GSI initialization, token transmission, and route navigation.
 - `WaitlistDetail.test.jsx`: Tests CSV export triggers, zero-signup disabled states, inline position editing, and multi-select batch invite dispatch.
-- `Login.test.jsx` & `Profile.test.jsx`: Tests credential submissions, error alerts, and profile updates.
+- `Profile.test.jsx`: Tests profile submissions, errors, and updates.
 - `SignupForm.test.jsx`: Tests email validation, referral preservation, and duplicate submission handling.
-- `ErrorBoundary.test.jsx`: Tests boundary fallback rendering upon simulated component crashes.
+- `ProtectedRoute.test.jsx`: Tests loading, authenticated access, and unauthenticated redirects.
 
 ---
 
@@ -288,7 +287,7 @@ VITE_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 ## Local Development
 
 ### Prerequisites
-- Node.js >= 18.0.0
+- Node.js 22 >= 22.13.0 (see `.nvmrc`)
 - npm >= 9.0.0
 
 ### Setup

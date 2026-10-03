@@ -17,7 +17,7 @@ export default function Pricing() {
     try {
       const res = await api.post("/payments/checkout", { plan: planId });
       window.location.href = res.data.checkoutUrl;
-    } catch (_err) {
+    } catch {
       alert("Something went wrong starting checkout");
       setLoadingPlan(null);
     }

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import Profile from "../Profile";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "../../context/auth-context";
 import api from "../../api/axios";
 
 vi.mock("../../api/axios");
