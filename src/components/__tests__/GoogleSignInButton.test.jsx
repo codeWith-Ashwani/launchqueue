@@ -21,6 +21,7 @@ describe("GoogleSignInButton Component", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    api.get.mockResolvedValue({ data: { googleClientId: "backend-google-client-id.apps.googleusercontent.com" } });
     import.meta.env.VITE_GOOGLE_CLIENT_ID = "mock-google-client-id.apps.googleusercontent.com";
   });
 
@@ -39,7 +40,7 @@ describe("GoogleSignInButton Component", () => {
     );
   }
 
-  it("initializes GSI and renders the Google sign in button", () => {
+  it("uses backend configuration and renders the official Google sign in button", async () => {
     const initializeMock = vi.fn();
     const renderButtonMock = vi.fn();
 
@@ -54,11 +55,11 @@ describe("GoogleSignInButton Component", () => {
 
     renderComponent();
 
-    expect(initializeMock).toHaveBeenCalledWith(
+    await waitFor(() => expect(initializeMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        client_id: "mock-google-client-id.apps.googleusercontent.com",
+        client_id: "backend-google-client-id.apps.googleusercontent.com",
       })
-    );
+    ));
     expect(renderButtonMock).toHaveBeenCalled();
   });
 
@@ -89,7 +90,7 @@ describe("GoogleSignInButton Component", () => {
 
     renderComponent();
 
-    expect(capturedCallback).toBeDefined();
+    await waitFor(() => expect(capturedCallback).toBeDefined());
 
     // Simulate Google credential callback
     await capturedCallback({ credential: "mock_google_id_token" });
@@ -128,10 +129,18 @@ describe("GoogleSignInButton Component", () => {
 
     renderComponent();
 
+    await waitFor(() => expect(capturedCallback).toBeDefined());
     await capturedCallback({ credential: "unverified_token" });
 
     await waitFor(() => {
       expect(screen.getByText("Google email is not verified")).toBeInTheDocument();
     });
+  });
+  it("keeps a visible Google option and explains unavailable configuration", async () => {
+    api.get.mockResolvedValue({ data: { googleClientId: null } });
+    renderComponent();
+    expect(screen.getByRole("button", { name: "Continue with Google" })).toBeDisabled();
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Google sign-in is currently unavailable"));
+    expect(screen.getByRole("button", { name: "Try Google again" })).toBeEnabled();
   });
 });

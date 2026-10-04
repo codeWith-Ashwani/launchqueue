@@ -2,96 +2,148 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import api from "../api/axios";
-import HomeButton from "../components/HomeButton";
+import AppNav from "../components/AppNav";
 
 export default function Dashboard() {
-  const { founder, logout } = useAuth();
+  const { founder } = useAuth();
   const [waitlists, setWaitlists] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [revision, setRevision] = useState(0);
 
   useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError("");
     api
       .get("/waitlists")
       .then((res) => {
-        setWaitlists(res.data.waitlists || []);
+        if (active) setWaitlists(res.data.waitlists || []);
       })
       .catch((err) => {
-        console.error("Failed to load waitlists:", err);
-        setWaitlists([]);
+        if (active)
+          setError(
+            err.response?.data?.error ||
+              "Couldn’t load your campaigns. Please try again.",
+          );
       })
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [revision]);
 
   return (
-    <div className="lq-dashboard-container">
-      <div className="lq-page-top-nav">
-        <HomeButton />
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-          <Link to="/profile" className="lq-btn lq-btn-ghost lq-btn-sm">
-            ⚙ Account
-          </Link>
-          <button onClick={logout} className="lq-btn lq-btn-secondary lq-btn-sm">
-            Log out
-          </button>
+    <div className="platform-account-page">
+      <AppNav />
+      <main className="platform-container founder-dashboard">
+        <div className="lq-dashboard-header">
+          <div>
+            <h1 className="lq-dashboard-title">Dashboard</h1>
+            <p className="lq-dashboard-sub">
+              {founder?.name
+                ? `${founder.name} (${founder.email})`
+                : founder?.email}{" "}
+              · {founder?.plan} plan
+            </p>
+          </div>
         </div>
-      </div>
-
-      <div className="lq-dashboard-header">
-        <div>
-          <h1 className="lq-dashboard-title">Dashboard</h1>
-          <p className="lq-dashboard-sub">
-            {founder?.name ? `${founder.name} (${founder.email})` : founder?.email} · {founder?.plan} plan
-          </p>
+        <div className="account-stat-grid">
+          <div className="account-stat">
+            <span>Your campaigns</span>
+            <strong>{loading || error ? "—" : waitlists.length}</strong>
+          </div>
+          <div className="account-stat">
+            <span>Total signups</span>
+            <strong>
+              {loading || error
+                ? "—"
+                : waitlists
+                    .reduce(
+                      (sum, campaign) => sum + (campaign.signupCount || 0),
+                      0,
+                    )
+                    .toLocaleString()}
+            </strong>
+          </div>
+          <div className="account-stat">
+            <span>Accepting signups</span>
+            <strong>
+              {loading || error
+                ? "—"
+                : waitlists.filter((campaign) => !campaign.paused).length}
+            </strong>
+          </div>
+          <div className="account-stat">
+            <span>Your plan</span>
+            <strong style={{ textTransform: "capitalize" }}>
+              {founder?.plan || "free"}
+            </strong>
+          </div>
         </div>
-      </div>
-
-      <Link to="/dashboard/new" className="lq-btn lq-btn-primary lq-dashboard-create-btn">
-        + Create a waitlist
-      </Link>
-
-      {!loading && waitlists.length === 0 && (
-        <div className="lq-onboarding-card">
-          <p className="lq-onboarding-title">
-            Get started in 3 steps
-          </p>
-
-          <ol className="lq-onboarding-list">
-            <li>Create your first waitlist above</li>
-            <li>
-              Copy your embed code from the waitlist's settings and add it to
-              your own site
-            </li>
-            <li>
-              Share your public waitlist link — every referral moves someone
-              up the list
-            </li>
-          </ol>
-        </div>
-      )}
-
-      {loading ? (
-        <p className="lq-empty-text">Loading...</p>
-      ) : waitlists.length === 0 ? (
-        <p className="lq-empty-text">
-          No waitlists yet — create your first one above.
-        </p>
-      ) : (
-        <div className="lq-waitlist-list">
-          {waitlists.map((w) => (
-            <Link
-              key={w._id}
-              to={`/dashboard/${w._id}`}
-              className="lq-waitlist-item"
+        {error && (
+          <div role="alert" className="lq-msg-error">
+            {error}
+            <button
+              className="platform-text-button"
+              onClick={() => setRevision(revision + 1)}
             >
-              <span>{w.name}</span>
+              Try again
+            </button>
+          </div>
+        )}
 
-              <span className="lq-waitlist-item-count">
-                {w.signupCount} signups
-              </span>
-            </Link>
-          ))}
-        </div>
-      )}
+        <Link
+          to="/dashboard/new"
+          className="lq-btn lq-btn-primary lq-dashboard-create-btn"
+        >
+          + Create a waitlist
+        </Link>
+
+        {!loading && !error && waitlists.length === 0 && (
+          <div className="lq-onboarding-card">
+            <p className="lq-onboarding-title">Get started in 3 steps</p>
+
+            <ol className="lq-onboarding-list">
+              <li>Create your first waitlist above</li>
+              <li>
+                Copy your embed code from the waitlist's settings and add it to
+                your own site
+              </li>
+              <li>
+                Share your public waitlist link — every referral moves someone
+                up the list
+              </li>
+            </ol>
+          </div>
+        )}
+
+        {loading ? (
+          <p className="lq-empty-text">Loading...</p>
+        ) : error ? null : waitlists.length === 0 ? (
+          <p className="lq-empty-text">
+            No waitlists yet — create your first one above.
+          </p>
+        ) : (
+          <div className="lq-waitlist-list">
+            {waitlists.map((w) => (
+              <Link
+                key={w._id}
+                to={`/dashboard/${w._id}`}
+                className="lq-waitlist-item"
+              >
+                <span>{w.name}</span>
+
+                <span className="lq-waitlist-item-count">
+                  {w.signupCount} signups
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

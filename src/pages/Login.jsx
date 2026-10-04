@@ -54,10 +54,11 @@ export default function Login() {
 
           <form onSubmit={handleSubmit}>
             <div className="lq-form-group">
-              <label className="lq-form-label">
+              <label className="lq-form-label" htmlFor="login-email">
                 Email address
               </label>
               <input
+                id="login-email" autoComplete="email"
                 type="email"
                 placeholder="founder@company.com"
                 value={email}
@@ -69,7 +70,7 @@ export default function Login() {
 
             <div className="lq-form-group lq-form-group-spaced">
               <div className="lq-form-label-row">
-                <label className="lq-form-label" style={{ marginBottom: 0 }}>
+                <label className="lq-form-label" htmlFor="login-password" style={{ marginBottom: 0 }}>
                   Password
                 </label>
                 <Link to="/forgot-password" className="lq-form-forgot-link">
@@ -77,6 +78,7 @@ export default function Login() {
                 </Link>
               </div>
               <input
+                id="login-password" autoComplete="current-password"
                 type="password"
                 placeholder="••••••••"
                 value={password}

@@ -11,19 +11,21 @@ export default function WaitlistSettings() {
   const [description, setDescription] = useState(""); const [slug, setSlug] = useState("");
   const [saving, setSaving] = useState(false); const [designing, setDesigning] = useState(false);
   const [error, setError] = useState("");
+  const [discoverable, setDiscoverable] = useState(false);
   useEffect(() => {
     let active = true;
     api.get(`/waitlists/${id}`).then((res) => {
       if (!active) return;
       const w = res.data.waitlist; setCampaign(editableCampaign(w));
       setName(w.name); setDescription(w.description || ""); setSlug(w.slug);
+      setDiscoverable(Boolean(w.discoverable));
     }).catch(() => { if (active) setError("Could not load this campaign. Return to the dashboard and try again."); });
     return () => { active = false; };
   }, [id]);
   async function save(e) {
     e.preventDefault(); setError(""); setSaving(true);
     try {
-      await api.patch(`/waitlists/${id}`, { name, description, ...campaignPayload(campaign) });
+      await api.patch(`/waitlists/${id}`, { name, description, discoverable, ...campaignPayload(campaign) });
       navigate(`/dashboard/${id}`);
     } catch (err) { setError(err.response?.data?.error || "Could not save. Your draft is preserved."); }
     finally { setSaving(false); }
@@ -38,6 +40,7 @@ export default function WaitlistSettings() {
         <div className="lq-form-group"><label className="lq-form-label" htmlFor="campaign-description">Product details</label><textarea id="campaign-description" rows={3} maxLength={4000} className="lq-form-textarea" value={description} disabled={saving || designing} onChange={(e) => setDescription(e.target.value)} /></div>
       </div>
       <CampaignDesigner value={campaign} onChange={setCampaign} name={name} description={description} disabled={saving} onBusyChange={setDesigning} />
+      <label className="discovery-consent"><input type="checkbox" checked={discoverable} disabled={saving || designing} onChange={(event) => setDiscoverable(event.target.checked)} /><span><strong>Feature my product on the LaunchQueue leaderboard</strong><span>Your name, description, and confirmed signup counts are public when listed. Subscriber emails stay private.</span></span></label>
       <button type="submit" disabled={saving || designing} className="lq-btn lq-btn-primary" style={{ marginBottom: 40 }}>{saving ? "Saving changes…" : "Save and publish changes"}</button>
     </form>}
   </div>;

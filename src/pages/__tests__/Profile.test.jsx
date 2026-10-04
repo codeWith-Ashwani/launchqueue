@@ -19,6 +19,7 @@ describe("Profile Page", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    api.get.mockImplementation(() => Promise.resolve({ data: { campaigns: [], usage: { campaigns: 0, signups: 0, confirmed: 0 }, limits: { campaigns: 10, signups: 25000 } } }));
   });
 
   function renderProfile(founder = mockFounder) {
@@ -104,9 +105,9 @@ describe("Profile Page", () => {
 
   it("attempts to open billing portal on manage payment method click", async () => {
     const windowOpenSpy = vi.spyOn(window, "open").mockImplementation(() => {});
-    api.get.mockResolvedValueOnce({
+    api.get.mockImplementation((path) => Promise.resolve(path === "/payments/portal" ? {
       data: { portalUrl: "https://launchqueue.lemonsqueezy.com/billing" },
-    });
+    } : { data: { campaigns: [] } }));
 
     renderProfile();
 
@@ -117,7 +118,7 @@ describe("Profile Page", () => {
       expect(api.get).toHaveBeenCalledWith("/payments/portal");
       expect(windowOpenSpy).toHaveBeenCalledWith(
         "https://launchqueue.lemonsqueezy.com/billing",
-        "_blank"
+        "_blank", "noopener,noreferrer"
       );
     });
 
@@ -125,9 +126,9 @@ describe("Profile Page", () => {
   });
 
   it("shows message when founder does not have an active subscription", async () => {
-    api.get.mockRejectedValueOnce({
+    api.get.mockImplementation((path) => path === "/payments/portal" ? Promise.reject({
       response: { status: 404, data: { error: "No active customer portal found" } },
-    });
+    }) : Promise.resolve({ data: { campaigns: [] } }));
 
     renderProfile();
 
