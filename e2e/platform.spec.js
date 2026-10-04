@@ -1,5 +1,24 @@
 import { test, expect } from "@playwright/test";
 const backend = "http://127.0.0.1:5051";
+test("real browser vitals reach the API without private paths or query strings", async ({ page, request }) => {
+  await page.goto("/?token=private-performance-test");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Be early to");
+  await page.waitForFunction(() => performance.getEntriesByType("resource").some((entry) => entry.name.includes("web-vitals")));
+  const responsePromise = page.waitForResponse((response) => response.url().endsWith("/api/telemetry/vitals") && response.request().method() === "POST");
+  await page.getByRole("button", { name: "All time", exact: true }).click();
+  const response = await responsePromise;
+  expect(response.status()).toBe(204);
+  const payload = response.request().postDataJSON();
+  expect(payload.metrics.length).toBeGreaterThan(0);
+  expect(payload.metrics.every((metric) => ["LCP", "INP", "CLS"].includes(metric.name) && metric.route === "/")).toBe(true);
+  expect(JSON.stringify(payload)).not.toMatch(/private|token|email|entries/);
+  const session = await request.post(`${backend}/api/auth/login`, { data: { email: "admin@example.com", password: "DemoAdmin123!" } });
+  expect(session.ok()).toBe(true);
+  const diagnostics = await request.get(`${backend}/api/admin/diagnostics`);
+  expect(diagnostics.ok()).toBe(true);
+  const body = await diagnostics.json();
+  expect(body.webVitals.some((metric) => metric.label.endsWith(" /"))).toBe(true);
+});
 test.beforeEach(async ({ page, request }) => {
   await page.route(
     /^https:\/\/(?:fonts\.googleapis\.com|fonts\.gstatic\.com|accounts\.google\.com)\//,

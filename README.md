@@ -218,7 +218,7 @@ Subscriber proof arrives in URL fragments, is cleared from the address bar, and 
 
 ## Testing and CI
 
-The latest verified frontend suite contains **57 unit/component tests** and **11 browser flows**.
+The frontend suite contains **62 unit/component tests** and **12 browser flows**.
 
 | Coverage | Examples |
 | --- | --- |
@@ -256,6 +256,14 @@ npm run test:e2e
 ```
 
 Tests use an isolated MongoDB replica set and captured email. GitHub Actions runs lint, tests, production builds, dependency audits, and browser flows against a pinned backend commit on `main`, `feature/**`, and pull requests to `main`.
+
+## Responsiveness measurements
+
+Sampled page loads report **LCP** (loading), **INP** (interaction responsiveness), and **CLS** (layout stability) using a separately loaded Web Vitals module. Production defaults to sampling 10% of page loads; configure `VITE_PERFORMANCE_SAMPLE_RATE` between `0` (disabled) and `1` (every load). Reports contain only the metric name, value, and initial document route template. Campaign slugs, account IDs, query strings, tokens, and DOM entries are excluded.
+
+Measurements describe the initial document, including subsequent SPA interactions. The reporter batches at most three metrics, flushes when the page hides or every 15 seconds when values are available, and drops failed delivery without blocking the UI. Database-approved admins can inspect aggregated measurements through the backend's `GET /api/admin/diagnostics`. Browser tests exercise a real Web Vitals beacon against the isolated API.
+
+The [backend performance suite](https://github.com/codeWith-Ashwani/launchqueue-backend#performance-and-observability) adds concurrent analytics load tests and a CI latency/error gate for repeatable performance comparisons.
 
 ## Deployment
 
