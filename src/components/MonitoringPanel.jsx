@@ -60,7 +60,7 @@ export default function MonitoringPanel() {
           </tr>)}</tbody>
         </table>
       </div>}
-      <p className="monitoring-note">Percentiles are histogram upper bounds. These observations describe recorded traffic, including Render cold starts; they do not measure external uptime.</p>
+      <p className="monitoring-note">Percentiles are histogram upper bounds. These observations describe recorded API traffic and sampled browser updates; they do not measure external uptime.</p>
     </>}
     <h3>Recent sampled requests</h3>
     {!traces.length && !loading ? <p>No stored traces in this window yet.</p> : <ul className="monitoring-traces">{traces.map((item) => <li key={item.spanId}>
