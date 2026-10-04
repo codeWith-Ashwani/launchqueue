@@ -1152,3 +1152,18 @@ button:disabled {
     scroll-behavior: auto !important;
   }
 }
+
+.monitoring-card { margin-bottom: 24px; }
+.monitoring-panel { margin-top: 24px; }
+.monitoring-panel h3 { margin: 28px 0 12px; }
+.monitoring-note { color: #686372; font-size: .85rem; line-height: 1.7; margin: 16px 0; }
+.monitoring-state { font-size: .8rem; white-space: nowrap; }
+.monitoring-met { color: #176a4b; }
+.monitoring-breached { color: #a82638; }
+.monitoring-warming { color: #686372; }
+.monitoring-traces { padding-left: 20px; }
+.monitoring-traces li { margin: 12px 0; }
+.monitoring-traces li > span { display: block; font-size: .8rem; opacity: .7; }
+.monitoring-detail { padding: 20px; border: 1px solid rgba(160,160,180,.2); border-radius: 12px; }
+.monitoring-detail code { overflow-wrap: anywhere; }
+.monitoring-detail li { margin: 8px 0; overflow-wrap: anywhere; }

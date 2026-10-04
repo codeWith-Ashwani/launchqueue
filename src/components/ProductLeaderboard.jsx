@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import api from "../api/axios";
+import { getDiscovery } from "../api/resources";
 import { usePageMotion } from "../hooks/usePageMotion";
 export default function ProductLeaderboard() {
   const [period, setPeriod] = useState("week");
@@ -15,11 +15,7 @@ export default function ProductLeaderboard() {
     let active = true;
     setLoading(true);
     setError("");
-    api
-      .get("/discover/leaderboard", {
-        params: { period },
-        signal: controller.signal,
-      })
+    getDiscovery({ period }, { signal: controller.signal })
       .then(({ data }) => {
         if (active) setResult({ ...data, period });
       })

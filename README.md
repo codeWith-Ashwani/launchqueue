@@ -231,6 +231,8 @@ The frontend suite contains **62 unit/component tests** and **12 browser flows**
 
 ```sh
 npm run lint
+npm run contracts:check
+npm run typecheck
 npm test
 npm run build
 ```
@@ -255,13 +257,19 @@ $env:PLAYWRIGHT_CHANNEL = "msedge"
 npm run test:e2e
 ```
 
-Tests use an isolated MongoDB replica set and captured email. GitHub Actions runs lint, tests, production builds, dependency audits, and browser flows against a pinned backend commit on `main`, `feature/**`, and pull requests to `main`.
+Tests use an isolated MongoDB replica set and captured email. The suite includes **64 unit/component tests** and **13 browser flows**, including persistent monitoring and mobile layout. GitHub Actions runs lint, API contract/type checks, tests, production builds, dependency audits, and browser flows against a pinned backend commit on `main`, `feature/**`, and pull requests to `main`.
+
+### Generated API types
+
+`contracts/openapi.yaml` is a snapshot of the backend's validated OpenAPI 3.1 interface. `npm run contracts:generate` refreshes that snapshot and `src/api/generated/schema.d.ts` from `LAUNCHQUEUE_BACKEND_DIR` (locally defaults to `../launchqueue/server`). `src/api/resources.ts` uses these types for analytics, discovery, founder overview, and monitoring requests; the rest of the application remains JavaScript. Compile-only regression checks reject unsupported query fields, invalid discovery periods, and private response fields.
+
+When changing the API, regenerate the backend contract first, refresh frontend types, run `contracts:check` and `typecheck`, and update the CI backend fixture pin to the verified backend commit. CI rejects stale types and snapshots that differ from the pinned backend.
 
 ## Responsiveness measurements
 
 Sampled page loads report **LCP** (loading), **INP** (interaction responsiveness), and **CLS** (layout stability) using a separately loaded Web Vitals module. Production defaults to sampling 10% of page loads; configure `VITE_PERFORMANCE_SAMPLE_RATE` between `0` (disabled) and `1` (every load). Reports contain only the metric name, value, and initial document route template. Campaign slugs, account IDs, query strings, tokens, and DOM entries are excluded.
 
-Measurements describe the initial document, including subsequent SPA interactions. The reporter batches at most three metrics, flushes when the page hides or every 15 seconds when values are available, and drops failed delivery without blocking the UI. Database-approved admins can inspect aggregated measurements through the backend's `GET /api/admin/diagnostics`. Browser tests exercise a real Web Vitals beacon against the isolated API.
+Measurements describe the initial document, including subsequent SPA interactions. The reporter batches at most three metrics, flushes when the page hides or every 15 seconds when values are available, and drops failed delivery without blocking the UI. Database-approved admins can expand **Service health & traces** in `/admin` to inspect persisted observations, objective status, and sampled request operations. Collection uses the backend's existing MongoDB database with seven day expiry. The panel explains sample counts and approximate percentiles; its requests retain the same database approval checks as other admin routes. Browser tests exercise a real Web Vitals beacon and MongoDB trace export against the isolated API.
 
 The [backend performance suite](https://github.com/codeWith-Ashwani/launchqueue-backend#performance-and-observability) adds concurrent analytics load tests and a CI latency/error gate for repeatable performance comparisons.
 

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import AppNav from "../components/AppNav";
 import api from "../api/axios";
 import { usePageMotion } from "../hooks/usePageMotion";
+import MonitoringPanel from "../components/MonitoringPanel";
 const date = (value) => (value ? new Date(value).toLocaleDateString() : "—");
 export default function Admin() {
   const root = useRef(null);
@@ -22,6 +23,7 @@ export default function Admin() {
   const [error, setError] = useState("");
   const [revision, setRevision] = useState(0);
   const [busyId, setBusyId] = useState("");
+  const [showHealth, setShowHealth] = useState(false);
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
@@ -141,6 +143,12 @@ export default function Admin() {
             </span>
           </div>
         )}
+        <section className="account-card monitoring-card" aria-label="Service monitoring">
+          <button className="platform-text-button" aria-expanded={showHealth} onClick={() => setShowHealth((value) => !value)}>
+            {showHealth ? 'Hide service health ↑' : 'View service health & traces ↓'}
+          </button>
+          {showHealth && <MonitoringPanel />}
+        </section>
         <section
           className="account-card admin-records"
           aria-label="Platform records"

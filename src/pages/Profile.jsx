@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import api from "../api/axios";
+import { getFounderOverview } from "../api/resources";
 import AppNav from "../components/AppNav";
 import { usePageMotion } from "../hooks/usePageMotion";
 import ProfileCampaign from "../components/ProfileCampaign";
@@ -19,8 +20,7 @@ export default function Profile() {
     const controller = new AbortController();
     setOverviewLoading(true);
     setOverviewError("");
-    api
-      .get("/auth/overview", { signal: controller.signal })
+    getFounderOverview({ signal: controller.signal })
       .then(({ data }) => {
         if (active) setOverview(data);
       })

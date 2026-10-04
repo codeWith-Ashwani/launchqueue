@@ -286,3 +286,26 @@ test("hero remains readable throughout motion and refreshing discovery keeps pro
   release();
   await expect(page.getByRole("button", { name: "Refresh board ↻" })).toBeEnabled();
 });
+
+test("approved admin sees persistent health and correlated traces on mobile", async ({ page }) => {
+  await signIn(page, true);
+  await page.goto('/admin');
+  await page.getByRole('button', { name: 'View service health & traces ↓' }).click();
+  await expect(page.getByRole('heading', { name: 'Service health', exact: true })).toBeVisible();
+  await expect(page.getByText(/Collection enabled/)).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Service health observations' })).toBeVisible();
+  // Export is batched. Wait for the real Mongo exporter rather than mocking trace responses.
+  await expect.poll(async () => {
+    const result = await page.request.get('http://localhost:5051/api/admin/traces?hours=24');
+    expect(result.ok()).toBe(true);
+    return (await result.json()).traces.length;
+  }, { timeout: 15000 }).toBeGreaterThan(0);
+  await page.getByRole('button', { name: 'Refresh health' }).click();
+  await expect(page.locator('.monitoring-traces button').first()).toBeVisible();
+  await page.locator('.monitoring-traces button').first().click();
+  await expect(page.getByRole('heading', { name: 'Request operations' })).toBeVisible();
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: 'test-results/monitoring-mobile.png', fullPage: true });
+});

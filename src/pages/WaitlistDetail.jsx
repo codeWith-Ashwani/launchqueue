@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
+import { getCampaignStats, getCampaignFunnel } from "../api/resources";
 import StatCard from "../components/StatCard";
 import SignupsChart from "../components/SignupsChart";
 import FunnelChart from "../components/FunnelChart";
@@ -31,8 +32,8 @@ export default function WaitlistDetail() {
   const fetchData = useCallback(() => {
     const version = ++fetchVersion.current;
     return Promise.all([
-      api.get(`/waitlists/${id}/stats`, { params: { page, limit: 50 } }),
-      api.get(`/waitlists/${id}/funnel`),
+      getCampaignStats(id, { page, limit: 50 }),
+      getCampaignFunnel(id),
     ])
       .then(([statsRes, funnelRes]) => {
         if (version !== fetchVersion.current) return;
