@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { StrictMode } from "react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import WaitlistDetail from "../WaitlistDetail";
 import api from "../../api/axios";
@@ -118,6 +119,17 @@ describe("WaitlistDetail Page - CSV Export, Admin Controls & Funnel Analytics", 
     const exportBtn = screen.getByRole("button", { name: /export signups as csv/i });
     expect(exportBtn).toBeInTheDocument();
     expect(exportBtn).not.toBeDisabled();
+  });
+
+  it("keeps loading when a stale StrictMode request finishes before the active request", async () => {
+    const pending = [];
+    api.get.mockImplementation((url) => new Promise((resolve) => pending.push({ url, resolve })));
+    render(<StrictMode><MemoryRouter initialEntries={["/dashboard/waitlist123"]}><Routes><Route path="/dashboard/:id" element={<WaitlistDetail />} /></Routes></MemoryRouter></StrictMode>);
+    expect(pending).toHaveLength(4);
+    await act(async () => { pending.slice(0, 2).forEach(({ url, resolve }) => resolve({ data: url.includes("/stats") ? mockStatsWithSignups : mockFunnelData })); });
+    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    await act(async () => { pending.slice(2).forEach(({ url, resolve }) => resolve({ data: url.includes("/stats") ? mockStatsWithSignups : mockFunnelData })); });
+    expect(screen.getByRole("heading", { name: "Early Beta Launch" })).toBeInTheDocument();
   });
 
   it("handles zero page views gracefully without NaN or errors", async () => {
