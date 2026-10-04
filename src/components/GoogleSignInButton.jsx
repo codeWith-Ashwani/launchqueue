@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import api from "../api/axios";
 import { loadGoogleIdentity } from "../utils/googleIdentity";
-export default function GoogleSignInButton() {
+export default function GoogleSignInButton({ onSuccess }) {
   const button = useRef(null);
   const { loginWithGoogle } = useAuth();
   const navigate = useNavigate();
@@ -46,7 +46,8 @@ export default function GoogleSignInButton() {
             });
             if (active) {
               loginWithGoogle(data.founder);
-              navigate("/dashboard");
+              if (onSuccess) onSuccess(data.founder);
+              else navigate("/dashboard");
             }
           } catch (err) {
             if (active)
@@ -77,7 +78,7 @@ export default function GoogleSignInButton() {
       controller.abort();
       host?.replaceChildren();
     };
-  }, [loginWithGoogle, navigate, revision]);
+  }, [loginWithGoogle, navigate, onSuccess, revision]);
   return (
     <div className="google-sign-in">
       {!ready && (

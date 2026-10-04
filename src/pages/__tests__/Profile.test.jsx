@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { act, render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import Profile from "../Profile";
 import { AuthContext } from "../../context/auth-context";
@@ -138,5 +138,43 @@ describe("Profile Page", () => {
     await waitFor(() => {
       expect(screen.getByText(/don't have an active subscription yet/i)).toBeInTheDocument();
     });
+  });
+
+  it("updates only the toggled row immediately, preserves counts, and never refetches the campaign overview", async () => {
+    const campaigns = ["First", "Second"].map((name, i) => ({ _id: String(i), name, slug: name.toLowerCase(), discoverable: false, paused: false, signupCount: 123, confirmedCount: 100 }));
+    api.get.mockResolvedValue({ data: { campaigns } });
+    let finish;
+    api.patch.mockImplementation(() => new Promise((resolve) => { finish = resolve; }));
+    renderProfile();
+    const first = (await screen.findByText("First")).closest("article");
+    const second = screen.getByText("Second").closest("article");
+    fireEvent.click(within(first).getByRole("button", { name: "List on discovery" }));
+    expect(within(first).getByText("On the discovery board")).toBeInTheDocument();
+    expect(within(first).getByRole("button", { name: "Remove from discovery" })).toBeDisabled();
+    expect(within(second).getByRole("button", { name: "List on discovery" })).toBeEnabled();
+    expect(screen.queryByText("Loading your campaigns…")).not.toBeInTheDocument();
+    await act(async () => finish({ data: { waitlist: { discoverable: true, discoveryHidden: false } } }));
+    expect(screen.getByText("First").closest("article")).toBe(first);
+    expect(screen.getByText("Second").closest("article")).toBe(second);
+    expect(within(first).getByText("123")).toBeInTheDocument();
+    expect(api.get.mock.calls.filter(([path]) => path === "/auth/overview")).toHaveLength(1);
+  });
+
+  it("rolls back a failed toggle without affecting a concurrent save on another campaign", async () => {
+    api.get.mockResolvedValue({ data: { campaigns: ["First", "Second"].map((name, i) => ({ _id: String(i), name, slug: name.toLowerCase(), discoverable: false, paused: false, signupCount: 0, confirmedCount: 0 })) } });
+    const pending = {};
+    api.patch.mockImplementation((path) => new Promise((resolve, reject) => { pending[path] = { resolve, reject }; }));
+    renderProfile();
+    const first = (await screen.findByText("First")).closest("article");
+    const second = screen.getByText("Second").closest("article");
+    fireEvent.click(within(first).getByRole("button", { name: "List on discovery" }));
+    fireEvent.click(within(second).getByRole("button", { name: "List on discovery" }));
+    await act(async () => pending["/waitlists/0"].reject({ response: { data: { error: "Save failed" } } }));
+    expect(within(first).getByRole("alert")).toHaveTextContent("Save failed");
+    expect(within(first).getByText("Unlisted")).toBeInTheDocument();
+    expect(within(second).getByRole("button", { name: "Remove from discovery" })).toBeDisabled();
+    await act(async () => pending["/waitlists/1"].resolve({ data: { waitlist: { discoverable: true } } }));
+    expect(within(second).getByRole("button", { name: "Remove from discovery" })).toBeEnabled();
+    expect(within(first).getByRole("button", { name: "List on discovery" })).toBeEnabled();
   });
 });

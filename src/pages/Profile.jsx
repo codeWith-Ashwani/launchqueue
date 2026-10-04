@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import api from "../api/axios";
 import AppNav from "../components/AppNav";
 import { usePageMotion } from "../hooks/usePageMotion";
+import ProfileCampaign from "../components/ProfileCampaign";
 
 export default function Profile() {
   const { founder, updateFounder } = useAuth();
@@ -13,7 +14,6 @@ export default function Profile() {
   const [overviewLoading, setOverviewLoading] = useState(true);
   const [overviewError, setOverviewError] = useState("");
   const [revision, setRevision] = useState(0);
-  const [busyCampaign, setBusyCampaign] = useState("");
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
@@ -36,22 +36,13 @@ export default function Profile() {
       controller.abort();
     };
   }, [revision]);
-  async function updateCampaign(campaign, field) {
-    setBusyCampaign(campaign._id);
-    setOverviewError("");
-    try {
-      await api.patch(`/waitlists/${campaign._id}`, {
-        [field]: !campaign[field],
-      });
-      setRevision((value) => value + 1);
-    } catch (err) {
-      setOverviewError(
-        err.response?.data?.error || "Couldn’t save that campaign change.",
-      );
-    } finally {
-      setBusyCampaign("");
-    }
-  }
+  const updateCampaign = useCallback((id, patch) => {
+    const changes = Object.fromEntries(Object.entries(patch).filter(([, value]) => value !== undefined));
+    setOverview((previous) => previous ? {
+      ...previous,
+      campaigns: previous.campaigns.map((campaign) => campaign._id === id ? { ...campaign, ...changes } : campaign),
+    } : previous);
+  }, []);
 
   const [name, setName] = useState(founder?.name || "");
   const [email, setEmail] = useState(founder?.email || "");
@@ -216,7 +207,7 @@ export default function Profile() {
               </button>
             </div>
           )}
-          {overviewLoading ? (
+          {overviewLoading && !overview ? (
             <p role="status">Loading your campaigns…</p>
           ) : !overview?.campaigns?.length ? (
             <div className="platform-empty">
@@ -232,62 +223,7 @@ export default function Profile() {
           ) : (
             <div className="profile-campaign-list">
               {overview.campaigns.map((campaign) => (
-                <article key={campaign._id} className="profile-campaign">
-                  <div>
-                    <h3>{campaign.name}</h3>
-                    <Link to={`/w/${campaign.slug}`}>
-                      /w/{campaign.slug} ↗
-                    </Link>
-                    <p>
-                      <span className="account-status">
-                        {campaign.paused ? "Paused" : "Accepting signups"}
-                      </span>
-                      <span className="account-status">
-                        {campaign.discoveryHidden
-                          ? "Discovery hidden by admin"
-                          : campaign.discoverable
-                            ? "On the discovery board"
-                            : "Unlisted"}
-                      </span>
-                    </p>
-                  </div>
-                  <div className="profile-campaign-count">
-                    <strong>{campaign.signupCount.toLocaleString()}</strong>
-                    <span>signups · {campaign.confirmedCount} confirmed</span>
-                  </div>
-                  <div className="profile-campaign-actions">
-                    <Link
-                      to={`/dashboard/${campaign._id}`}
-                      className="lq-btn lq-btn-secondary"
-                    >
-                      View analytics
-                    </Link>
-                    <Link
-                      to={`/dashboard/${campaign._id}/settings`}
-                      className="lq-btn lq-btn-primary"
-                    >
-                      Edit campaign ↗
-                    </Link>
-                    <button
-                      type="button"
-                      className="platform-text-button"
-                      disabled={busyCampaign === campaign._id}
-                      onClick={() => updateCampaign(campaign, "paused")}
-                    >
-                      {campaign.paused ? "Resume signups" : "Pause signups"}
-                    </button>
-                    <button
-                      type="button"
-                      className="platform-text-button"
-                      disabled={busyCampaign === campaign._id}
-                      onClick={() => updateCampaign(campaign, "discoverable")}
-                    >
-                      {campaign.discoverable
-                        ? "Remove from discovery"
-                        : "List on discovery"}
-                    </button>
-                  </div>
-                </article>
+                <ProfileCampaign key={campaign._id} campaign={campaign} onChange={updateCampaign} />
               ))}
             </div>
           )}

@@ -8,7 +8,7 @@ function AdminAccess({ children }) {
   ) : (
     <main className="platform-container platform-access-denied">
       <h1>Administrator access required</h1>
-      <p>This area is available to the LaunchQueue administrator.</p>
+      <p>Your account must be approved for admin access in the database.</p>
       <Link to="/dashboard" className="lq-btn lq-btn-primary">
         Return to your dashboard
       </Link>
@@ -17,7 +17,7 @@ function AdminAccess({ children }) {
 }
 export default function AdminRoute({ children }) {
   return (
-    <ProtectedRoute>
+    <ProtectedRoute loginPath="/admin/login">
       <AdminAccess>{children}</AdminAccess>
     </ProtectedRoute>
   );

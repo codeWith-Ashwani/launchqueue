@@ -21,7 +21,7 @@ export default function ProductLeaderboard() {
         signal: controller.signal,
       })
       .then(({ data }) => {
-        if (active) setResult(data);
+        if (active) setResult({ ...data, period });
       })
       .catch(() => {
         if (active)
@@ -40,6 +40,7 @@ export default function ProductLeaderboard() {
       id="leaderboard"
       className="discovery-section"
       ref={root}
+      data-motion-root
       aria-labelledby="leaderboard-heading"
     >
       <div className="platform-section-heading">
@@ -77,11 +78,11 @@ export default function ProductLeaderboard() {
           Ranked by confirmed signups. New joins count after email verification.
         </p>
       </div>
-      {loading ? (
+      {loading && !result ? (
         <div className="platform-empty" role="status">
           Finding the next wave of products…
         </div>
-      ) : error ? (
+      ) : error && !result ? (
         <div className="platform-empty" role="alert">
           <p>{error}</p>
           <button
@@ -106,7 +107,7 @@ export default function ProductLeaderboard() {
           </Link>
         </div>
       ) : (
-        <ol className="product-list" aria-label="Product rankings">
+        <ol className="product-list" aria-label="Product rankings" aria-busy={loading}>
           {result.products.map((product) => (
             <li key={product.slug} data-reveal>
               <Link to={`/w/${product.slug}`} className="product-row">
@@ -139,13 +140,13 @@ export default function ProductLeaderboard() {
                 </div>
                 <div className="product-score">
                   <strong>
-                    {(period === "week"
+                    {(result.period === "week"
                       ? product.weeklyMembers
                       : product.members
                     ).toLocaleString()}
                   </strong>
                   <span>
-                    {period === "week" ? "joined this week" : "members"}
+                    {result.period === "week" ? "joined this week" : "members"}
                   </span>
                 </div>
                 <span className="product-arrow" aria-hidden="true">
@@ -157,6 +158,8 @@ export default function ProductLeaderboard() {
         </ol>
       )}
       <div className="discovery-bottom">
+        {error && result && <span role="alert">{error}</span>}
+        {loading && result && <span role="status">Updating board…</span>}
         <span>Discover. Join. Share. Be part of what comes next.</span>
         <button
           type="button"

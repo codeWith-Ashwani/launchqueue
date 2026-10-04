@@ -187,6 +187,7 @@ export default function Home() {
         <p>For what comes next. Built by codeWith-Ashwani.</p>
         <div>
           <a href="#leaderboard">Discover</a>
+          <Link to={founder?.isAdmin ? "/admin" : "/admin/login"}>Admin login</Link>
           <Link to={founder ? "/profile" : "/login"}>
             {founder ? "My profile" : "Founder login"}
           </Link>

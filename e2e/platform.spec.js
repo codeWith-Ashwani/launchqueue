@@ -202,3 +202,68 @@ test("Google option remains visible and a delayed SDK renders using backend conf
     fullPage: true,
   });
 });
+
+test("a slow discovery toggle keeps the existing campaign mounted and makes no overview request", async ({ page }) => {
+  await signIn(page);
+  await page.goto("/profile");
+  await expect(page.locator(".profile-campaign")).toContainText("Interview Demo");
+  await page.locator(".profile-campaign").evaluate((element) => { window.campaignBeforeToggle = element; });
+  let overviewRequests = 0;
+  page.on("request", (request) => { if (request.url().includes("/api/auth/overview")) overviewRequests++; });
+  let release;
+  const gate = new Promise((resolve) => { release = resolve; });
+  await page.route("**/api/waitlists/*", async (route) => {
+    if (route.request().method() !== "PATCH") return route.continue();
+    await gate;
+    await route.continue();
+  });
+  await page.getByRole("button", { name: "Remove from discovery" }).click();
+  await expect(page.locator(".profile-campaign")).toHaveAttribute("aria-busy", "true");
+  await expect(page.locator(".profile-campaign")).toContainText("Unlisted");
+  await expect(page.getByText("Loading your campaigns…")).toHaveCount(0);
+  expect(await page.locator(".profile-campaign").evaluate((element) => element === window.campaignBeforeToggle)).toBe(true);
+  release();
+  await expect(page.locator(".profile-campaign")).toHaveAttribute("aria-busy", "false");
+  expect(overviewRequests).toBe(0);
+  await page.reload();
+  await expect(page.getByRole("button", { name: "List on discovery" })).toBeEnabled();
+});
+
+test("footer admin login accepts only accounts approved in the database", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "Admin login", exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/login$/);
+  await page.getByLabel("Email address").fill("demo@example.com");
+  await page.getByLabel("Password", { exact: true }).fill("DemoPassword123!");
+  await page.getByRole("button", { name: /Log in to Admin/ }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "not been approved" })).toBeVisible();
+  await expect(page).toHaveURL(/\/admin\/login$/);
+  await page.getByLabel("Email address").fill("admin@example.com");
+  await page.getByLabel("Password", { exact: true }).fill("DemoAdmin123!");
+  await page.getByRole("button", { name: /Log in to Admin/ }).click();
+  await expect(page).toHaveURL(/\/admin$/);
+  await expect(page.getByRole("heading", { name: "The whole picture." })).toBeVisible();
+});
+
+test("hero remains readable throughout motion and refreshing discovery keeps product rows mounted", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator(".product-row")).toContainText("Interview Demo");
+  const hiddenSamples = await page.evaluate(() => new Promise((resolve) => {
+    let hidden = 0;
+    const started = performance.now();
+    const timer = setInterval(() => {
+      if ([...document.querySelectorAll("[data-hero]")].some((el) => Number(getComputedStyle(el).opacity) < .99)) hidden++;
+      if (performance.now() - started > 1200) { clearInterval(timer); resolve(hidden); }
+    }, 20);
+  }));
+  expect(hiddenSamples).toBe(0);
+  await page.locator(".product-row").evaluate((el) => { window.productBeforeRefresh = el; });
+  let release;
+  const gate = new Promise((resolve) => { release = resolve; });
+  await page.route("**/api/discover/leaderboard*", async (route) => { await gate; await route.continue(); });
+  await page.getByRole("button", { name: "Refresh board ↻" }).click();
+  await expect(page.getByRole("status")).toHaveText("Updating board…");
+  expect(await page.locator(".product-row").evaluate((el) => el === window.productBeforeRefresh)).toBe(true);
+  release();
+  await expect(page.getByRole("button", { name: "Refresh board ↻" })).toBeEnabled();
+});

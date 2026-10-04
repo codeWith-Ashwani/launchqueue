@@ -16,23 +16,23 @@ export function usePageMotion(root, revision = "") {
         media.add(
           "(prefers-reduced-motion: no-preference)",
           () => {
-            const hero = root.current.querySelectorAll("[data-hero]");
+            // A nested motion root owns its own elements; avoid animating them twice.
+            const owned = (selector) => [...root.current.querySelectorAll(selector)]
+              .filter((element) => !element.closest("[data-motion-root]") || element.closest("[data-motion-root]") === root.current);
+            const hero = owned("[data-hero]");
             if (hero.length)
               gsap.from(hero, {
-                y: 28,
-                opacity: 0,
-                duration: 0.85,
-                stagger: 0.09,
+                y: 12,
+                duration: 0.35,
+                stagger: 0.03,
                 ease: "power3.out",
                 clearProps: "all",
               });
-            root.current
-              .querySelectorAll("[data-reveal]")
+            owned("[data-reveal]")
               .forEach((element) => {
                 gsap.from(element, {
-                  y: 22,
-                  opacity: 0,
-                  duration: 0.65,
+                  y: 12,
+                  duration: 0.35,
                   ease: "power2.out",
                   clearProps: "all",
                   scrollTrigger: {
