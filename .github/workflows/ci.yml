@@ -42,7 +42,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: codeWith-Ashwani/launchqueue-backend
-          ref: 659044c2336ad87c66a90c4aeb7ebbe50c7ace5d
+          ref: 870ddc39dc7dd876207b232aaa8bfa08c14200d8
           path: .e2e-backend
 
       - name: Install backend fixture dependencies
