@@ -1,130 +1,284 @@
-# LaunchQueue — Frontend
+<div align="center">
+  <img src="public/favicon.svg" width="64" height="64" alt="LaunchQueue logo" />
+  <h1>LaunchQueue</h1>
+  <p><strong>Discover early. Launch your idea. Grow your community.</strong></p>
+  <p>A React frontend for branded campaign pages, referral waitlists, and founder workspaces.</p>
+  <p>
+    <a href="https://launchqueue-omega.vercel.app/">Live application</a> ·
+    <a href="https://github.com/codeWith-Ashwani/launchqueue-backend">Backend repository</a> ·
+    <a href="#quick-start">Quick start</a>
+  </p>
+  <p>
+    <a href="https://github.com/codeWith-Ashwani/launchqueue/actions/workflows/ci.yml"><img src="https://github.com/codeWith-Ashwani/launchqueue/actions/workflows/ci.yml/badge.svg" alt="Frontend CI" /></a>
+    <a href="https://react.dev"><img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&amp;logoColor=black" alt="React 19" /></a>
+    <a href="https://vite.dev"><img src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite&amp;logoColor=white" alt="Vite 8" /></a>
+    <img src="https://img.shields.io/badge/GSAP-3-88CE02" alt="GSAP 3" />
+    <img src="https://img.shields.io/badge/Hosted_on-Vercel-000000?logo=vercel" alt="Hosted on Vercel" />
+  </p>
+</div>
 
-[![CI](https://github.com/codeWith-Ashwani/launchqueue/actions/workflows/ci.yml/badge.svg)](https://github.com/codeWith-Ashwani/launchqueue/actions/workflows/ci.yml)
-[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
-[![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev)
+[![LaunchQueue landing page with product discovery and founder launch controls](.github/assets/launchqueue-home.png)](https://launchqueue-omega.vercel.app/)
 
-LaunchQueue helps founders turn product ideas into branded prelaunch pages and grow early communities through referral waitlists. The frontend combines product discovery, an editable campaign designer, subscriber experiences, founder analytics, and an admin workspace.
+LaunchQueue brings product discovery and prelaunch growth into one experience. Visitors find emerging products, join their waitlists, and share referral links. Founders design a branded page, follow signup activity, and manage their early community from a dedicated workspace.
 
-[Live application](https://launchqueue-omega.vercel.app/) · [Backend repository](https://github.com/codeWith-Ashwani/launchqueue-backend)
+This repository contains the frontend. The [Express backend](https://github.com/codeWith-Ashwani/launchqueue-backend) handles authentication, Groq generation, verification, ranking, billing, and admin authorization.
 
-## Features
+## Explore the project
 
-- **Product discovery:** Weekly and all-time rankings of products that founders choose to list, with links to their public campaign pages.
-- **AI campaign designer:** Groq-generated branding drafts based on product details and founder preferences, with a live preview and manual editing before publishing.
-- **Custom campaign pages:** Editable layouts, palettes, typography, section order, images, headline copy, features, stories, FAQs, and referral milestones.
-- **Referral waitlists:** Email verification, shareable referral links, private queue status recovery, masked referral leaderboards, and activity feeds.
-- **Founder workspace:** Campaign analytics, paginated subscribers, queue controls, invitation delivery status, paid CSV export, and branding settings.
-- **Founder profile:** Editable account details, campaign usage, subscription status, billing access, security controls, and discovery and pause/resume toggles.
-- **Admin workspace:** Platform totals, searchable founder and subscriber records, campaign exploration, and discovery moderation for database-approved accounts.
-- **Authentication:** Email/password login, Google sign-in, and password recovery, with a separate admin login entry in the footer.
-- **Responsive motion:** GSAP animations respect reduced-motion preferences and keep content readable while animating.
-- **Efficient updates:** Campaign toggles update individual rows with immediate feedback and rollback on failure. Leaderboard refreshes retain existing rows, and charts load on demand.
+- [Product experience](#product-experience)
+- [Tech stack](#tech-stack)
+- [Quick start](#quick-start)
+- [Environment configuration](#environment-configuration)
+- [Project structure](#project-structure)
+- [Frontend architecture](#frontend-architecture)
+- [Routes and access](#routes-and-access)
+- [Rendering and accessibility](#rendering-and-accessibility)
+- [Testing and CI](#testing-and-ci)
+- [Deployment](#deployment)
+- [Author](#author)
+
+## Product experience
+
+| Experience | What you can do |
+| --- | --- |
+| **Discover products** | Browse weekly and all-time rankings, explore campaign pages, and join early communities. |
+| **Design a campaign** | Generate a Groq design draft from a product brief, preview it, and edit layout, typography, colors, images, copy, and section order. |
+| **Grow a waitlist** | Verify an email, track a private queue position, share a referral link, and follow referral milestones. |
+| **Manage a launch** | Review charts and subscribers, page through records, adjust queue positions, send invitations, and export CSV on paid plans. |
+| **Manage your profile** | Update account details, review campaigns and subscription status, open billing, and change security settings. |
+| **Control discovery** | List or unlist a campaign and pause or resume signups directly from the profile, with immediate feedback. |
+| **Administer the platform** | Search founders and subscribers, explore campaigns, review platform totals, and moderate discovery listings with database-approved access. |
+
+### Founder workflow
+
+1. Sign in with email/password or Google.
+2. Create a campaign and describe the product and preferred brand direction.
+3. Generate a design draft or customize the page manually, then preview and publish.
+4. Share the campaign and optionally list it on the discovery board.
+5. Track verified signups, referrals, and invitations from the founder workspace.
+
+Campaigns support centered, split, and editorial layouts, plus configurable features, story, steps, FAQ, and reward sections. AI drafts remain editable before publishing.
 
 ## Tech stack
 
-| Area | Technology |
-| --- | --- |
-| UI | React 19, CSS |
-| Build | Vite 8 |
-| Routing | React Router 7 |
-| Animation | GSAP, ScrollTrigger |
-| API client | Axios with HttpOnly cookie sessions |
-| Analytics charts | Recharts |
-| Unit and component tests | Vitest, Testing Library, jsdom |
-| Browser tests | Playwright |
-| Hosting | Vercel |
+| Layer | Technology | Purpose |
+| --- | --- | --- |
+| UI | React 19, CSS | Reusable components and responsive layouts |
+| Build | Vite 8 | Development server and production bundling |
+| Routing | React Router 7 | Public, founder, and admin navigation |
+| Motion | GSAP, ScrollTrigger | Page and scroll transitions |
+| API | Axios | Cookie-based requests to the backend |
+| Charts | Recharts | Signup trends and conversion summaries |
+| Unit/component tests | Vitest, Testing Library, jsdom | Interaction and state behavior |
+| Browser tests | Playwright | Complete flows against an isolated real API |
+| Hosting | Vercel | Frontend builds and deployment |
 
-## Routes
+## Quick start
 
-| Route | Purpose |
-| --- | --- |
-| `/` | Landing page and product discovery |
-| `/register`, `/login` | Founder signup and login |
-| `/forgot-password`, `/reset-password` | Password recovery |
-| `/dashboard` | Campaign overview |
-| `/dashboard/new` | Create and design a campaign |
-| `/dashboard/:id` | Campaign analytics and subscriber controls |
-| `/dashboard/:id/settings` | Edit and publish campaign branding |
-| `/profile` | Account details, campaigns, subscription, and security |
-| `/pricing` | Plans and checkout |
-| `/w/:slug`, `/w/:slug/welcome` | Public campaign and welcome pages |
-| `/admin/login` | Admin sign-in |
-| `/admin` | Database-approved administrator workspace |
+Use **Node.js 22** and npm. The steps below run the frontend with a seeded local backend.
 
-## Local development
+### 1. Clone both repositories
 
-Use Node.js 22 and start the [backend](https://github.com/codeWith-Ashwani/launchqueue-backend) before using authenticated or data-driven features.
+Run these commands from the same parent directory:
 
 ```sh
 git clone https://github.com/codeWith-Ashwani/launchqueue.git
+git clone https://github.com/codeWith-Ashwani/launchqueue-backend.git
+```
+
+### 2. Start the demo API
+
+In one terminal:
+
+```sh
+cd launchqueue-backend/server
+npm ci
+npm run demo
+```
+
+The API starts at `http://localhost:5051` with an ephemeral MongoDB replica set, 120 synthetic subscribers, and captured email.
+
+### 3. Start the frontend
+
+In a second terminal, starting from the parent directory:
+
+```sh
 cd launchqueue
 npm ci
 cp .env.example .env
-npm run dev
 ```
 
-On PowerShell, use `Copy-Item .env.example .env` instead of `cp`. Vite serves the application at `http://localhost:5173`.
-
-### Environment configuration
-
-```env
-VITE_API_URL=http://localhost:5000/api
-```
-
-`VITE_API_URL` must include `/api`. Configure `GOOGLE_CLIENT_ID` on the backend; the sign-in component retrieves the public client ID through `/api/auth/config`. `VITE_GOOGLE_CLIENT_ID` is an optional frontend fallback. Groq, email, billing, and database credentials belong only on the backend.
-
-### Local demo
-
-Run `npm run demo` from the backend's `server/` directory and set:
+On PowerShell, use `Copy-Item .env.example .env` to copy the template. Set this value in `.env`:
 
 ```env
 VITE_API_URL=http://localhost:5051/api
 ```
+
+Then start Vite:
+
+```sh
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173).
+
+### 4. Explore the seeded workspace
 
 | Demo account | Email | Password |
 | --- | --- | --- |
 | Founder | `demo@example.com` | `DemoPassword123!` |
 | Approved admin | `admin@example.com` | `DemoAdmin123!` |
 
-The demo seeds 120 synthetic subscribers for `/w/interview-demo` in an ephemeral MongoDB replica set. Email is captured at `http://localhost:5051/__demo/inbox`, and the fixture uses no production accounts or data.
+Visit `/w/interview-demo` to try the public campaign. Captured verification and invitation emails are available at `http://localhost:5051/__demo/inbox`. These accounts and messages belong to the isolated demo.
 
-## Admin access
+For live Groq generation, real email, or billing integrations, start a configured backend with `npm run dev` using the [backend setup guide](https://github.com/codeWith-Ashwani/launchqueue-backend#local-development).
 
-The footer's **Admin login** link provides sign-in at `/admin/login` and direct workspace access for already signed-in admins. Access requires `adminApproved: true` on the account's MongoDB document, set by a trusted database operator. The backend checks this approval on every admin request, so signup, profile edits, and client-side state cannot grant privileges. See the [backend setup](https://github.com/codeWith-Ashwani/launchqueue-backend#admin-access).
+## Environment configuration
 
-## Rendering and data flow
+Use [`.env.example`](.env.example) as the frontend template. Restart Vite after editing environment values.
 
-Routes load separately, and analytics charts are downloaded with the campaign detail page. Authentication callbacks and context values stay stable across renders, with a shared startup session request in development.
+| Variable | Purpose |
+| --- | --- |
+| `VITE_API_URL` | Backend URL including `/api`; `http://localhost:5000/api` for the regular local API, or port `5051` for the demo |
+| `VITE_GOOGLE_CLIENT_ID` | Optional public fallback Google OAuth web client ID |
 
-Profile campaign controls preserve existing rows while a save is pending. A successful response updates that campaign; a failed save restores its previous value and displays an inline error. Product discovery refreshes keep the previous results visible while the next response loads.
+Google sign-in normally loads its public client ID from `/api/auth/config`, configured through `GOOGLE_CLIENT_ID` on the backend. Groq, email, billing, and database credentials stay on the backend. The browser requests an AI draft through the authenticated API.
 
-GSAP animations use short transform transitions without hiding content, avoid duplicate animation ownership, and honor reduced motion. Read requests avoid the mutation-only security header, while writes retain the required browser request protection.
+## Project structure
 
-Subscriber proof is received through URL fragments, cleared from the address bar, and used for campaign-scoped status access. Referral storage is scoped to each campaign. Analytics use UTC dates and identify the verified signup/visitor ratio explicitly.
+```text
+src/
+├── api/                 Axios client and request security
+├── components/          Campaign designer, discovery, navigation, charts, and forms
+├── context/             Authentication provider and shared session state
+├── hooks/               Authentication, waitlist, and page-motion hooks
+├── pages/               Public pages, founder workspace, profile, and admin
+├── styles/              Platform, campaign, and designer styles
+├── utils/               Campaign design helpers and Google SDK loader
+├── test/                Test setup
+├── App.jsx              Lazy routes and access guards
+└── main.jsx             Application entry point
+e2e/                     Playwright flows and isolated API startup
+public/                  Public icons and favicon
+.github/                 CI workflow and README preview
+```
+
+Unit and component tests live alongside their source folders in `__tests__` directories. Pages coordinate data and navigation; reusable components handle the UI, and hooks share session, waitlist, and motion behavior.
+
+## Frontend architecture
+
+```mermaid
+flowchart LR
+    ENTRY["React entry point"] --> AUTH["AuthProvider"]
+    AUTH --> ROUTES["Lazy routes & access guards"]
+    ROUTES --> PUBLIC["Discovery & public campaigns"]
+    ROUTES --> FOUNDER["Founder dashboard, designer & profile"]
+    ROUTES --> ADMIN["Approved admin workspace"]
+    PUBLIC --> API["Axios API client"]
+    FOUNDER --> API
+    ADMIN --> API
+    API --> BACKEND["Express backend"]
+    BACKEND --> DATA["MongoDB, Redis, Groq, email & billing"]
+```
+
+The authentication provider restores the session through an HttpOnly cookie. Route guards guide navigation, while the backend enforces campaign ownership and admin approval on API requests. AI-generated designs are validated by the backend and displayed through the existing campaign components.
+
+## Routes and access
+
+| Route | Experience | Access |
+| --- | --- | --- |
+| `/` | Product discovery and landing page | Public |
+| `/register`, `/login` | Founder signup and sign-in | Public |
+| `/forgot-password`, `/reset-password` | Password recovery | Public |
+| `/w/:slug`, `/w/:slug/welcome` | Campaign and welcome pages | Public; private subscriber status uses proof |
+| `/dashboard` | Campaign overview | Founder |
+| `/dashboard/new` | Campaign creation and design | Founder |
+| `/dashboard/:id` | Analytics and subscriber controls | Campaign owner |
+| `/dashboard/:id/settings` | Campaign branding and settings | Campaign owner |
+| `/profile` | Account, campaigns, subscription, and security | Founder |
+| `/pricing` | Plans and checkout | Founder |
+| `/admin/login` | Admin sign-in | Public login entry |
+| `/admin` | Platform administration | Database-approved admin |
+
+### Admin approval
+
+The footer's **Admin login** link opens the sign-in page or the workspace for an already signed-in administrator. Admin access requires `adminApproved: true` on the account's MongoDB record, assigned by a trusted database operator. Signup and profile forms cannot grant this approval. See the [backend admin setup](https://github.com/codeWith-Ashwani/launchqueue-backend#admin-access).
+
+## Rendering and accessibility
+
+- **Targeted campaign updates:** Toggles preserve the campaign list, update the selected row immediately, and restore its previous value if saving fails.
+- **Continuous discovery:** Board refreshes keep existing results visible while loading the next response.
+- **Route splitting:** Page modules load separately; analytics charts download with the campaign detail page.
+- **Stable authentication:** Memoized context values and callbacks avoid unnecessary consumer updates, and development effects share the startup session request.
+- **Immediate content:** GSAP uses short transform transitions without hiding text, avoids duplicate animation ownership, and respects reduced-motion preferences.
+- **Lean read requests:** The browser security header is added to mutations, avoiding unnecessary preflight requests on reads.
+- **Usable states:** Labeled controls, visible pending/error messages, responsive navigation, and unknown-route handling keep interactions understandable.
+
+Subscriber proof arrives in URL fragments, is cleared from the address bar, and enables campaign-scoped status access. Referral storage is scoped to each campaign. Analytics use UTC dates and explicitly label the verified signup/visitor ratio.
 
 ## Testing and CI
+
+The latest verified frontend suite contains **57 unit/component tests** and **11 browser flows**.
+
+| Coverage | Examples |
+| --- | --- |
+| Public experience | Email verification, referrals, private status recovery, and product discovery |
+| Founder workspace | Analytics paging, invitations, CSV export, profile edits, and campaign controls |
+| Campaign design | Generated drafts, manual editing, publishing, and public branding |
+| Access and rendering | Admin approval, Google button availability, failed saves, and slow-response rendering |
+
+### Local checks
 
 ```sh
 npm run lint
 npm test
 npm run build
+```
+
+### Browser flows
+
+Playwright starts its own frontend and demo API. Stop the manually started demo servers before running these flows. Backend dependencies must be installed.
+
+For the repository layout from Quick start, run from the frontend directory:
+
+```sh
+export LAUNCHQUEUE_BACKEND_DIR="$(cd ../launchqueue-backend/server && pwd)"
 npx playwright install chromium
 npm run test:e2e
 ```
 
-The latest verified suite contains **57 unit/component tests** and **11 Playwright browser flows** covering referral verification, private status recovery, founder analytics, invitations, CSV exports, AI draft publishing, manual design, discovery, profiles, admin access, Google button availability, and rendering during slow requests.
+On PowerShell with installed Edge:
 
-Browser tests start the real Express API with an isolated MongoDB replica set and captured email. Install backend dependencies first. The default backend path is the sibling `launchqueue/server` directory; set `LAUNCHQUEUE_BACKEND_DIR` to another absolute backend `server` path when needed. On Windows, set `PLAYWRIGHT_CHANNEL=msedge` to use installed Edge.
+```powershell
+$env:LAUNCHQUEUE_BACKEND_DIR = (Resolve-Path ../launchqueue-backend/server).Path
+$env:PLAYWRIGHT_CHANNEL = "msedge"
+npm run test:e2e
+```
 
-GitHub Actions runs lint, tests, the production build, a dependency audit, and browser flows against a pinned backend commit. The backend separately tests BullMQ and shared rate-limit counters with a real Redis service.
+Tests use an isolated MongoDB replica set and captured email. GitHub Actions runs lint, tests, production builds, dependency audits, and browser flows against a pinned backend commit on `main`, `feature/**`, and pull requests to `main`.
 
 ## Deployment
 
-The application is hosted on [Vercel](https://launchqueue-omega.vercel.app/). Set `VITE_API_URL` to the production backend URL including `/api`, use `npm run build`, and publish `dist/`. Configure the backend's `CLIENT_URL` to match the frontend origin.
+The frontend is deployed on [Vercel](https://launchqueue-omega.vercel.app/).
 
-Google OAuth uses a web application client ID with the frontend origin registered. AI generation, admin approval, email delivery, and subscriptions are configured on the backend. Production builds follow the hosting project's configured Git branch.
+| Setting | Value |
+| --- | --- |
+| Framework | Vite |
+| Build command | `npm run build` |
+| Output directory | `dist` |
+| API environment variable | `VITE_API_URL=https://launchqueue-backend.onrender.com/api` |
+
+Configure the backend's `CLIENT_URL` to match the frontend origin. Google OAuth uses a web client ID with that origin registered. AI generation, email delivery, subscription billing, and admin approval are configured through the backend.
+
+For a local production build preview:
+
+```sh
+npm run build
+npm run preview
+```
 
 ## Author
 
-Built and maintained by [codeWith-Ashwani](https://github.com/codeWith-Ashwani).
+Built and maintained by **[codeWith-Ashwani](https://github.com/codeWith-Ashwani)**.
+
+[Explore LaunchQueue](https://launchqueue-omega.vercel.app/) · [View the backend](https://github.com/codeWith-Ashwani/launchqueue-backend)
