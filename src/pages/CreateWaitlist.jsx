@@ -8,13 +8,14 @@ import { editableCampaign, campaignPayload } from "../utils/campaignDesign";
 export default function CreateWaitlist() {
   const [name, setName] = useState(""); const [description, setDescription] = useState("");
   const [campaign, setCampaign] = useState(() => editableCampaign());
+  const [discoverable, setDiscoverable] = useState(false);
   const [error, setError] = useState(""); const [upgradeRequired, setUpgradeRequired] = useState(false);
   const [loading, setLoading] = useState(false); const [designing, setDesigning] = useState(false);
   const navigate = useNavigate();
   async function handleSubmit(e) {
     e.preventDefault(); setError(""); setUpgradeRequired(false); setLoading(true);
     try {
-      const res = await api.post("/waitlists", { name, description, ...campaignPayload(campaign) });
+      const res = await api.post("/waitlists", { name, description, discoverable, ...campaignPayload(campaign) });
       navigate(`/dashboard/${res.data.waitlist._id}`);
     } catch (err) {
       setUpgradeRequired(Boolean(err.response?.data?.upgradeRequired));
@@ -30,6 +31,7 @@ export default function CreateWaitlist() {
         <div className="lq-form-group"><label className="lq-form-label" htmlFor="campaign-description">What are you launching?</label><textarea id="campaign-description" className="lq-form-textarea" rows={3} maxLength={4000} value={description} disabled={loading || designing} onChange={(e) => setDescription(e.target.value)} placeholder="Describe the product, what it does, and what makes it different." /></div>
       </div>
       <CampaignDesigner value={campaign} onChange={setCampaign} name={name} description={description} disabled={loading} onBusyChange={setDesigning} />
+      <label className="discovery-consent"><input type="checkbox" checked={discoverable} disabled={loading || designing} onChange={(event) => setDiscoverable(event.target.checked)} /><span><strong>Feature my product on the LaunchQueue leaderboard</strong><span>Your product name, description, and confirmed signup counts will be public. You can change this later.</span></span></label>
       {error && <p role="alert" className="lq-form-error-msg">{error}</p>}
       {upgradeRequired && <Link to="/pricing">View plans to increase your campaign limit</Link>}
       <button type="submit" disabled={loading || designing} className="lq-btn lq-btn-primary" style={{ marginBottom: 40 }}>{loading ? "Publishing…" : "Create and publish campaign →"}</button>

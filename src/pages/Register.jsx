@@ -54,10 +54,11 @@ export default function Register() {
 
           <form onSubmit={handleSubmit}>
             <div className="lq-form-group">
-              <label className="lq-form-label">
+              <label className="lq-form-label" htmlFor="register-email">
                 Work email
               </label>
               <input
+                id="register-email" autoComplete="email"
                 type="email"
                 placeholder="founder@company.com"
                 value={email}
@@ -68,10 +69,11 @@ export default function Register() {
             </div>
 
             <div className="lq-form-group lq-form-group-spaced">
-              <label className="lq-form-label">
+              <label className="lq-form-label" htmlFor="register-password">
                 Password (min 6 characters)
               </label>
               <input
+                id="register-password" autoComplete="new-password" minLength={6}
                 type="password"
                 placeholder="••••••••"
                 value={password}

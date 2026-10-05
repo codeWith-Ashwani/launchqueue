@@ -1,6 +1,10 @@
 import { test, expect } from "@playwright/test";
 const backend = "http://127.0.0.1:5051";
-test.beforeEach(async ({ request }) => { expect((await request.post(`${backend}/__demo/reset`)).ok()).toBe(true); });
+test.beforeEach(async ({ request, page }) => {
+  // These password-login flows use local fonts and do not need Google's sign-in script.
+  await page.route(/^https:\/\/(?:fonts\.googleapis\.com|fonts\.gstatic\.com|accounts\.google\.com)\//, (route) => route.abort());
+  expect((await request.post(`${backend}/__demo/reset`)).ok()).toBe(true);
+});
 async function emailLink(request, to, marker) {
   const response = await request.get(`${backend}/__demo/inbox`, { params: { to } });
   const { emails } = await response.json();

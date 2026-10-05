@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ErrorBoundary from "./components/ErrorBoundary";
+import AdminRoute from "./components/AdminRoute";
+import "./styles/platform.css";
 const Register = lazy(() => import("./pages/Register"));
 const Login = lazy(() => import("./pages/Login"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
@@ -16,6 +18,7 @@ const Pricing = lazy(() => import("./pages/Pricing"));
 const Home = lazy(() => import("./pages/Home"));
 const WaitlistSettings = lazy(() => import("./pages/WaitlistSettings"));
 const Profile = lazy(() => import("./pages/Profile"));
+const Admin = lazy(() => import("./pages/Admin"));
 
 function App() {
   return (
@@ -25,6 +28,8 @@ function App() {
           <Suspense fallback={<p role="status" className="lq-container">Loading page...</p>}>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+            <Route path="/admin/login" element={<Login adminLogin />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />

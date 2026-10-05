@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { act, render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import Profile from "../Profile";
 import { AuthContext } from "../../context/auth-context";
@@ -19,6 +19,7 @@ describe("Profile Page", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    api.get.mockImplementation(() => Promise.resolve({ data: { campaigns: [], usage: { campaigns: 0, signups: 0, confirmed: 0 }, limits: { campaigns: 10, signups: 25000 } } }));
   });
 
   function renderProfile(founder = mockFounder) {
@@ -104,9 +105,9 @@ describe("Profile Page", () => {
 
   it("attempts to open billing portal on manage payment method click", async () => {
     const windowOpenSpy = vi.spyOn(window, "open").mockImplementation(() => {});
-    api.get.mockResolvedValueOnce({
+    api.get.mockImplementation((path) => Promise.resolve(path === "/payments/portal" ? {
       data: { portalUrl: "https://launchqueue.lemonsqueezy.com/billing" },
-    });
+    } : { data: { campaigns: [] } }));
 
     renderProfile();
 
@@ -117,7 +118,7 @@ describe("Profile Page", () => {
       expect(api.get).toHaveBeenCalledWith("/payments/portal");
       expect(windowOpenSpy).toHaveBeenCalledWith(
         "https://launchqueue.lemonsqueezy.com/billing",
-        "_blank"
+        "_blank", "noopener,noreferrer"
       );
     });
 
@@ -125,9 +126,9 @@ describe("Profile Page", () => {
   });
 
   it("shows message when founder does not have an active subscription", async () => {
-    api.get.mockRejectedValueOnce({
+    api.get.mockImplementation((path) => path === "/payments/portal" ? Promise.reject({
       response: { status: 404, data: { error: "No active customer portal found" } },
-    });
+    }) : Promise.resolve({ data: { campaigns: [] } }));
 
     renderProfile();
 
@@ -137,5 +138,43 @@ describe("Profile Page", () => {
     await waitFor(() => {
       expect(screen.getByText(/don't have an active subscription yet/i)).toBeInTheDocument();
     });
+  });
+
+  it("updates only the toggled row immediately, preserves counts, and never refetches the campaign overview", async () => {
+    const campaigns = ["First", "Second"].map((name, i) => ({ _id: String(i), name, slug: name.toLowerCase(), discoverable: false, paused: false, signupCount: 123, confirmedCount: 100 }));
+    api.get.mockResolvedValue({ data: { campaigns } });
+    let finish;
+    api.patch.mockImplementation(() => new Promise((resolve) => { finish = resolve; }));
+    renderProfile();
+    const first = (await screen.findByText("First")).closest("article");
+    const second = screen.getByText("Second").closest("article");
+    fireEvent.click(within(first).getByRole("button", { name: "List on discovery" }));
+    expect(within(first).getByText("On the discovery board")).toBeInTheDocument();
+    expect(within(first).getByRole("button", { name: "Remove from discovery" })).toBeDisabled();
+    expect(within(second).getByRole("button", { name: "List on discovery" })).toBeEnabled();
+    expect(screen.queryByText("Loading your campaigns…")).not.toBeInTheDocument();
+    await act(async () => finish({ data: { waitlist: { discoverable: true, discoveryHidden: false } } }));
+    expect(screen.getByText("First").closest("article")).toBe(first);
+    expect(screen.getByText("Second").closest("article")).toBe(second);
+    expect(within(first).getByText("123")).toBeInTheDocument();
+    expect(api.get.mock.calls.filter(([path]) => path === "/auth/overview")).toHaveLength(1);
+  });
+
+  it("rolls back a failed toggle without affecting a concurrent save on another campaign", async () => {
+    api.get.mockResolvedValue({ data: { campaigns: ["First", "Second"].map((name, i) => ({ _id: String(i), name, slug: name.toLowerCase(), discoverable: false, paused: false, signupCount: 0, confirmedCount: 0 })) } });
+    const pending = {};
+    api.patch.mockImplementation((path) => new Promise((resolve, reject) => { pending[path] = { resolve, reject }; }));
+    renderProfile();
+    const first = (await screen.findByText("First")).closest("article");
+    const second = screen.getByText("Second").closest("article");
+    fireEvent.click(within(first).getByRole("button", { name: "List on discovery" }));
+    fireEvent.click(within(second).getByRole("button", { name: "List on discovery" }));
+    await act(async () => pending["/waitlists/0"].reject({ response: { data: { error: "Save failed" } } }));
+    expect(within(first).getByRole("alert")).toHaveTextContent("Save failed");
+    expect(within(first).getByText("Unlisted")).toBeInTheDocument();
+    expect(within(second).getByRole("button", { name: "Remove from discovery" })).toBeDisabled();
+    await act(async () => pending["/waitlists/1"].resolve({ data: { waitlist: { discoverable: true } } }));
+    expect(within(second).getByRole("button", { name: "Remove from discovery" })).toBeEnabled();
+    expect(within(first).getByRole("button", { name: "List on discovery" })).toBeEnabled();
   });
 });

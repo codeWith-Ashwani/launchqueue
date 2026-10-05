@@ -2,71 +2,117 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import api from "../api/axios";
-
-export default function GoogleSignInButton({ text = "signin_with" }) {
-  const btnRef = useRef(null);
+import { loadGoogleIdentity } from "../utils/googleIdentity";
+export default function GoogleSignInButton({ onSuccess }) {
+  const button = useRef(null);
   const { loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
+  const [ready, setReady] = useState(false);
+  const [signingIn, setSigningIn] = useState(false);
+  const [revision, setRevision] = useState(0);
   useEffect(() => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (!clientId) {
-      return;
-    }
-
-    function initializeGsi() {
-      if (window.google?.accounts?.id && btnRef.current) {
-        window.google.accounts.id.initialize({
-          client_id: clientId,
-          callback: async (response) => {
-            if (!response.credential) return;
-            setLoading(true);
-            setError("");
-            try {
-              const res = await api.post("/auth/google", {
-                credential: response.credential,
-              });
-              loginWithGoogle(res.data.founder);
-              navigate("/dashboard");
-            } catch (err) {
-              setError(err.response?.data?.error || "Google Sign-In failed");
-            } finally {
-              setLoading(false);
-            }
-          },
+    let active = true;
+    const controller = new AbortController();
+    const host = button.current;
+    setReady(false);
+    setError("");
+    async function initialize() {
+      let clientId;
+      try {
+        const { data } = await api.get("/auth/config", {
+          signal: controller.signal,
         });
-
-        window.google.accounts.id.renderButton(btnRef.current, {
-          theme: "outline",
-          size: "large",
-          width: 320,
-          text: text,
-          shape: "rectangular",
-        });
+        clientId = data.googleClientId;
+      } catch {
+        clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
       }
+      if (!active) return;
+      if (!clientId)
+        throw new Error(
+          "Google sign-in is currently unavailable. Continue with email.",
+        );
+      const google = await loadGoogleIdentity();
+      if (!active || !host) return;
+      google.initialize({
+        client_id: clientId,
+        callback: async (response) => {
+          if (!active || !response.credential) return;
+          setSigningIn(true);
+          setError("");
+          try {
+            const { data } = await api.post("/auth/google", {
+              credential: response.credential,
+            });
+            if (active) {
+              loginWithGoogle(data.founder);
+              if (onSuccess) onSuccess(data.founder);
+              else navigate("/dashboard");
+            }
+          } catch (err) {
+            if (active)
+              setError(
+                err.response?.data?.error ||
+                  "Google sign-in failed. Please try again.",
+              );
+          } finally {
+            if (active) setSigningIn(false);
+          }
+        },
+      });
+      host.replaceChildren();
+      google.renderButton(host, {
+        theme: "outline",
+        size: "large",
+        width: Math.min(host.parentElement?.clientWidth || 320, 360),
+        text: "continue_with",
+        shape: "pill",
+      });
+      setReady(true);
     }
-
-    if (window.google?.accounts?.id) {
-      initializeGsi();
-    } else {
-      const interval = setInterval(() => {
-        if (window.google?.accounts?.id) {
-          clearInterval(interval);
-          initializeGsi();
-        }
-      }, 100);
-      return () => clearInterval(interval);
-    }
-  }, [loginWithGoogle, navigate, text]);
-
+    initialize().catch((err) => {
+      if (active) setError(err.message);
+    });
+    return () => {
+      active = false;
+      controller.abort();
+      host?.replaceChildren();
+    };
+  }, [loginWithGoogle, navigate, onSuccess, revision]);
   return (
-    <div>
-      <div className="lq-google-btn-wrapper" ref={btnRef}>
-        {loading && <p className="lq-dashboard-sub">Signing in with Google...</p>}
-      </div>
-      {error && <div className="lq-msg-error">{error}</div>}
+    <div className="google-sign-in">
+      {!ready && (
+        <button type="button" className="google-placeholder" disabled>
+          <span aria-hidden="true">G</span>Continue with Google
+        </button>
+      )}
+      <div
+        className="lq-google-btn-wrapper"
+        ref={button}
+        aria-busy={!ready && !error}
+      />
+      {!ready && !error && (
+        <p className="google-status" role="status">
+          Loading Google sign-in…
+        </p>
+      )}
+      {signingIn && (
+        <p className="google-status" role="status">
+          Signing in with Google…
+        </p>
+      )}
+      {error && (
+        <div className="google-status" role="alert">
+          <p>{error}</p>
+          <button
+            type="button"
+            className="platform-text-button"
+            onClick={() => setRevision(revision + 1)}
+          >
+            Try Google again
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -6,6 +6,6 @@ export default defineConfig({
   webServer: [
     { command: "node e2e/server.cjs", url: "http://127.0.0.1:5051/health", reuseExistingServer: false, timeout: 120000 },
     { command: "npm run dev -- --host localhost --port 4173 --strictPort", url: "http://localhost:4173", reuseExistingServer: false,
-      env: { VITE_API_URL: "http://localhost:5051/api", VITE_GOOGLE_CLIENT_ID: "" } },
+      env: { VITE_API_URL: "http://localhost:5051/api", VITE_GOOGLE_CLIENT_ID: "", VITE_PERFORMANCE_SAMPLE_RATE: "1" } },
   ],
 });

@@ -24,10 +24,10 @@ describe("Campaign design studio", () => {
     expect(screen.getByLabelText("Headline")).toHaveValue("Original headline");
   });
   it("preserves the current design when the free-tier provider fails", async () => {
-    api.post.mockRejectedValue({ response: { data: { error: "Gemini limit reached" } } }); show();
+    api.post.mockRejectedValue({ response: { data: { error: "Groq limit reached" } } }); show();
     fireEvent.change(screen.getByLabelText("Your brand direction"), { target: { value: "Calm editorial page in olive and cream" } });
     fireEvent.click(screen.getByRole("button", { name: /Generate branded page/ }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Gemini limit reached");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Groq limit reached");
     expect(screen.getByLabelText("Headline")).toHaveValue("Original headline");
   });
   it("changes layouts, sections and preview size without calling AI", () => {
